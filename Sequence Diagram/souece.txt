@@ -1,0 +1,72 @@
+title Soccorso urbano (Dispatcher unico + ricognizione drone + supporto tra unità)
+autonumber 1
+
+participant Dispatcher
+participant DroneScout
+participant AmbulanceUnit
+participant FireRescueUnit
+
+
+alt Segnalazione iniziale
+  note over Dispatcher: Arriva una chiamata al 112 (evento esterno)
+  Dispatcher->Dispatcher: incident_report(I, Loc)
+else Il drone vede un incidente
+  DroneScout->Dispatcher: inform incident_spotted(I, Loc)
+end
+
+
+alt Informazioni sufficienti
+  alt Tipo = "medico" / feriti
+    Dispatcher->AmbulanceUnit: dispatch_to(I, Loc)
+#    AmbulanceUnit-->Dispatcher: agree
+  else Tipo = "incendio" / estricazione
+    Dispatcher->FireRescueUnit:  dispatch_to(I, Loc)
+#    FireRescueUnit-->Dispatcher: agree
+  end
+else Informazioni insufficienti
+  Dispatcher->DroneScout: request recon(I, Loc)
+#  DroneScout-->Dispatcher: agree
+  DroneScout->Dispatcher: inform recon_report(I)
+  Dispatcher->Dispatcher: update_incident(I)
+
+  alt Dopo ricognizione: Tipo = medico
+    Dispatcher->AmbulanceUnit: dispatch_to(I, Loc)
+#    AmbulanceUnit-->Dispatcher: agree
+  else Dopo ricognizione: Tipo = incendio/estricazione
+    Dispatcher->FireRescueUnit: dispatch_to(I, Loc)
+#    FireRescueUnit-->Dispatcher: agree
+  end
+end
+
+group Intervento sul campo
+  note over AmbulanceUnit,FireRescueUnit: Le unità possono richiedere ulteriore supporto
+
+  alt Escalation: Ambulanza richiede supporto della FiireUnit
+    AmbulanceUnit->Dispatcher: request support(I, Loc, Type)
+    alt Unità disponibile
+    Dispatcher->FireRescueUnit:  dispatch_to(I, Loc)
+    Dispatcher-->AmbulanceUnit: agree
+    else Unità non Disponibile
+    Dispatcher-->AmbulanceUnit: refuse
+    end
+    
+  else Escalation: FireRescue richiede supporto sanitario
+    FireRescueUnit->Dispatcher: request support(I, Loc, Type)
+    alt Unità disponibile
+    Dispatcher->AmbulanceUnit:  dispatch_to(I, Loc)
+    Dispatcher-->FireRescueUnit: agree
+    else Unità non Disponibile
+    Dispatcher-->FireRescueUnit: refuse
+    end
+
+  end
+
+  note over Dispatcher: Il Dispatcher attende la fine intervento da tutte le unità assegnate
+
+  alt Fine intervento (successo)
+    AmbulanceUnit->Dispatcher: inform intervention_complete(I)
+    FireRescueUnit->Dispatcher: inform intervention_complete(I)
+    Dispatcher->Dispatcher: close_incident(I)
+  
+end
+
