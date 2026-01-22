@@ -1,4 +1,4 @@
-title Soccorso urbano (Dispatcher unico + ricognizione drone + supporto tra unità)
+title Soccorso urbano
 autonumber 1
 
 participant Dispatcher
