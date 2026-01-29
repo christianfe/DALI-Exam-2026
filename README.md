@@ -24,17 +24,23 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ### 1.2 Virtual Organization
 
-- **Name**: `EmergencyManagementSystem`
+- **Name**: `CityEmergencyManagementSystem`
 - **Goals**:
-  - Minimize risks to people and infrastructure.
+  - Save people and turn off fires.
   - Ensure prompt and coordinated reaction to emergencies.
-  - Support distributed decision-making among agents.
+  - Emergency control and escalation prevention.
 - **Roles and Interactions**:
-  - `Sensor → Coordinator`: sends alarm messages.
-  - `Coordinator → Evacuator`: sends evacuation commands.
-  - `All → Logger`: record of all relevant events and actions.
+  - `Drone → Dispatcher`: sends alarm messages.
+  - `Drone → Dispatcher`: inform about emergency type.
+  - `Dispatcher → Drone`: report request about an emergency situation.
+  - `Dispatcher → Ambulance`: dispatch to a location.
+  - `Dispatcher → FireRescue`: dispatch to a location.
+  - `Ambulance → Dispatcher`: request support
+  - `FireRescue → Dispatcher`: request support
 
 ---
+
+#TODO HERE
 
 ### 1.3 Event Table
 
@@ -76,3 +82,4 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 - **Logger**: reactive; logs every received message or command.
 
 ---
+
