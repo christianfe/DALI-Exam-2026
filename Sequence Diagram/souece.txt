@@ -1,72 +1,41 @@
+sequenceDiagram
 title Soccorso urbano
-autonumber 1
+autonumber
 
 participant Dispatcher
 participant DroneScout
 participant AmbulanceUnit
 participant FireRescueUnit
 
-
-alt Segnalazione iniziale
-  note over Dispatcher: Arriva una chiamata al 112 (evento esterno)
+alt Segnalazione
   Dispatcher->Dispatcher: incident_report(I, Loc)
-else Il drone vede un incidente
-  DroneScout->Dispatcher: inform incident_spotted(I, Loc)
+else Avvistamento drone
+  DroneScout->Dispatcher: incident_spotted(I, Loc)
 end
 
-
-alt Informazioni sufficienti
-  alt Tipo = "medico" / feriti
-    Dispatcher->AmbulanceUnit: dispatch_to(I, Loc)
-#    AmbulanceUnit-->Dispatcher: agree
-  else Tipo = "incendio" / estricazione
-    Dispatcher->FireRescueUnit:  dispatch_to(I, Loc)
-#    FireRescueUnit-->Dispatcher: agree
-  end
-else Informazioni insufficienti
-  Dispatcher->DroneScout: request recon(I, Loc)
-#  DroneScout-->Dispatcher: agree
-  DroneScout->Dispatcher: inform recon_report(I)
-  Dispatcher->Dispatcher: update_incident(I)
-
-  alt Dopo ricognizione: Tipo = medico
-    Dispatcher->AmbulanceUnit: dispatch_to(I, Loc)
-#    AmbulanceUnit-->Dispatcher: agree
-  else Dopo ricognizione: Tipo = incendio/estricazione
-    Dispatcher->FireRescueUnit: dispatch_to(I, Loc)
-#    FireRescueUnit-->Dispatcher: agree
-  end
+alt Info sufficienti
+  Dispatcher->>Dispatcher: classify_incident(I)
+else Info insufficienti
+  Dispatcher->DroneScout: recon_request(I, Loc)
+  DroneScout->Dispatcher: recon_report(I)
 end
 
-group Intervento sul campo
-  note over AmbulanceUnit,FireRescueUnit: Le unità possono richiedere ulteriore supporto
-
-  alt Escalation: Ambulanza richiede supporto della FiireUnit
-    AmbulanceUnit->Dispatcher: request support(I, Loc, Type)
-    alt Unità disponibile
-    Dispatcher->FireRescueUnit:  dispatch_to(I, Loc)
-    Dispatcher-->AmbulanceUnit: agree
-    else Unità non Disponibile
-    Dispatcher-->AmbulanceUnit: refuse
-    end
-    
-  else Escalation: FireRescue richiede supporto sanitario
-    FireRescueUnit->Dispatcher: request support(I, Loc, Type)
-    alt Unità disponibile
-    Dispatcher->AmbulanceUnit:  dispatch_to(I, Loc)
-    Dispatcher-->FireRescueUnit: agree
-    else Unità non Disponibile
-    Dispatcher-->FireRescueUnit: refuse
-    end
-
-  end
-
-  note over Dispatcher: Il Dispatcher attende la fine intervento da tutte le unità assegnate
-
-  alt Fine intervento (successo)
-    AmbulanceUnit->Dispatcher: inform intervention_complete(I)
-    FireRescueUnit->Dispatcher: inform intervention_complete(I)
-    Dispatcher->Dispatcher: close_incident(I)
-  
+alt Tipo medico
+  Dispatcher->AmbulanceUnit: dispatch(I, Loc)
+else Tipo incendio / estricazione
+  Dispatcher->FireRescueUnit: dispatch(I, Loc)
 end
 
+group Intervento
+  alt Richiesta supporto
+    AmbulanceUnit->Dispatcher: support_request(I)
+    Dispatcher->FireRescueUnit: dispatch(I, Loc)
+  else
+    FireRescueUnit->Dispatcher: support_request(I)
+    Dispatcher->AmbulanceUnit: dispatch(I, Loc)
+  end
+
+  AmbulanceUnit->Dispatcher: intervention_complete(I)
+  FireRescueUnit->Dispatcher: intervention_complete(I)
+  Dispatcher->Dispatcher: close_incident(I)
+end
