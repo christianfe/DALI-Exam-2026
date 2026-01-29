@@ -44,22 +44,38 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ### 1.3 Event Table
 
-#### Sensor
+#### Dispatcher
 
 | Event                | Type     | Source      |
 |----------------------|----------|-------------|
-| `detect_smoke`        | external | environment |
-| `detect_gas`          | external | environment |
-| `detect_earthquake`   | external | environment |
+| `call_emergency(Loc, Type)`        | external | environment |
+| `report_emergency(Loc, Type)`          | external | Drone |
 
-#### Coordinator
+
+#### Drone
 
 | Event                | Type     | Source      |
 |----------------------|----------|-------------|
-| `alarm(smoke)`        | external | Sensor      |
-| `alarm(gas)`          | external | Sensor      |
-| `alarm(earthquake)`   | external | Sensor      |
-| `evacuation_done`     | external | Evacuator   |
+| `request_recognition(Loc)`        | external | Dispatcher      |
+| `spot_fire(Loc)`          | external | environment      |
+| `spot_accident(Loc)`   | external | environment      |
+| `battery_low`     | Internal | drone   |
+
+
+#### Ambulance 
+
+| Event                | Type     | Source      |
+|----------------------|----------|-------------|
+| `dispatch(Loc)`        | external | Dispatcher      |
+| `spot_fire(Loc)`          | external | environment      |
+
+#### FireRescue 
+
+| Event                | Type     | Source      |
+|----------------------|----------|-------------|
+| `dispatch(Loc)`        | external | Dispatcher      |
+| `spot_accident(Loc)`          | external | environment      |
+
 
 ---
 
@@ -82,4 +98,5 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 - **Logger**: reactive; logs every received message or command.
 
 ---
+
 
