@@ -92,20 +92,26 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 | Action                      | Description                                 |
 |-----------------------------|---------------------------------------------|
-| `rescue_people`   | rescues people             |
+| `turn_off_fire`   | turn off the fire             |
 | `report(emergency_retired)`   | Notifies the Dispatcher that evacuation is complete |
 
+### Drone
+
+| Action                      | Description                                 |
+|-----------------------------|---------------------------------------------|
+| `recharge`   | charge the battery             |
 
 ---
 
 ### 1.5 Agent Behaviors
 
-- **Sensor**: reactive; generates alarms upon detecting anomalies.
-- **Coordinator**: reactive to incoming alarms; proactive in managing the response strategy.
-- **Evacuator**: reactive to evacuation commands; can report issues or confirmation.
-- **Logger**: reactive; logs every received message or command.
+- **Dispatcher**: reactive to emergencies; handles the operations.
+- **Drone**: reactive to incoming alarms.
+- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
+- **FireRescue**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
 
 ---
+
 
 
 
