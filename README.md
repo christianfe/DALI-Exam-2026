@@ -81,12 +81,20 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ### 1.4 Action Table
 
-#### Evacuator
+#### Ambulance
 
 | Action                      | Description                                 |
 |-----------------------------|---------------------------------------------|
-| `guide_people_to_exit(X)`   | Guides people to exit `X` safely            |
-| `report(evacuation_done)`   | Notifies the Coordinator that evacuation is complete |
+| `rescue_people`   | rescues people             |
+| `report(emergency_retired)`   | Notifies the Dispatcher that evacuation is complete |
+
+### Fireescue
+
+| Action                      | Description                                 |
+|-----------------------------|---------------------------------------------|
+| `rescue_people`   | rescues people             |
+| `report(emergency_retired)`   | Notifies the Dispatcher that evacuation is complete |
+
 
 ---
 
@@ -98,5 +106,6 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 - **Logger**: reactive; logs every received message or command.
 
 ---
+
 
 
