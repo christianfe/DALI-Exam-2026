@@ -113,5 +113,11 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 ---
 
 
+### 1.6 Sequence Diagram
+Here's a sequence diagram exploiting the agent interaction framework on emergency scenarios.
+
+<br>
+
+<img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
 
 
