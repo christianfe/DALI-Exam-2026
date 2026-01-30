@@ -3,21 +3,25 @@ title Soccorso urbano
 autonumber
 
 participant Dispatcher
+
 participant DroneScout
+
+
 participant AmbulanceUnit
+
 participant FireRescueUnit
 
 alt Segnalazione
-  Dispatcher->Dispatcher: incident_report(I, Loc)
+  Dispatcher->Dispatcher: call_emergency(Loc, Type)\n
 else Avvistamento drone
-  DroneScout->Dispatcher: incident_spotted(I, Loc)
+  DroneScout->Dispatcher: report_emergency(Loc, Type)
 end
 
 alt Info sufficienti
-  Dispatcher->>Dispatcher: classify_incident(I)
+  Dispatcher->>Dispatcher: emergency_type(Type)
 else Info insufficienti
-  Dispatcher->DroneScout: recon_request(I, Loc)
-  DroneScout->Dispatcher: recon_report(I)
+  Dispatcher->DroneScout: request_recognition(Loc)
+  DroneScout->Dispatcher: report_emergency(Loc, Type)
 end
 
 alt Tipo medico
