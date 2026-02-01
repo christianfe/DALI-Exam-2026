@@ -2,6 +2,8 @@
 % AMBULANCE agent 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- write('I\'m the ambulance agent').
+
 :- dynamic status/1.
 :- dynamic busy/1.
 :- dynamic current_job/1.

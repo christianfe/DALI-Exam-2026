@@ -41,6 +41,7 @@ if [[ -x "$PROLOG" ]]; then
   printf "SICStus Prolog found at %s\n" "$PROLOG"
 else
   printf "Error: SICStus Prolog not found at %s or is not executable.\n" "$PROLOG" >&2
+#   exit 1
 fi
 
 # Clean directories
@@ -64,26 +65,44 @@ cp $BUILD_HOME/*.plf work
 # Start the LINDA server in a new console
 srvcmd="$PROLOG --noinfo -l $DALI_HOME/active_server_wi.pl --goal go(3010,'server.txt')."
 echo "server: " $srvcmd
-tmux kill-session -t "$SESSION" 2>/dev/null || true  # Kill existing session if any
+
+tmux kill-session -t DALI_session 2>/dev/null || true
 tmux new-session -d -s DALI_session $srvcmd
+
 
 echo "Server ready. Starting the MAS..."
 $WAIT > /dev/null  # Wait for a while
 
 # Start user agent in another vertical split
-tmux split-window -v -t DALI_session "$PROLOG --noinfo -l $DALI_HOME/active_user_wi.pl --goal utente."
+tmux split-window -v -t DALI_session:0 "$PROLOG --noinfo -l $DALI_HOME/active_user_wi.pl --goal utente."
 echo "Launching agents instances..."
 $WAIT > /dev/null  # Wait for a while
 
 # Launch agents in horizontal splits, one after the other
+# for agent_filename in $BUILD_HOME/*; do
+#     agent_base="${agent_filename##*/}"
+#     echo "Agent: $agent_base"
+#     # Create the agent configuration
+#     $current_dir/conf/makeconf.sh $agent_base $DALI_HOME
+#     # Start the agent in the new pane
+#     tmux split-window -v -t DALI_session "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
+#     $WAIT > /dev/null  # Wait a bit before launching the next agent
+# done
+
+i=1
 for agent_filename in $BUILD_HOME/*; do
     agent_base="${agent_filename##*/}"
     echo "Agent: $agent_base"
+
     # Create the agent configuration
     $current_dir/conf/makeconf.sh $agent_base $DALI_HOME
-    # Start the agent in the new pane
-    tmux split-window -v -t DALI_session "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
-    $WAIT > /dev/null  # Wait a bit before launching the next agent
+
+    # Create a new tmux window for this agent
+    tmux new-window -t DALI_session -n $agent_filename \
+      "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
+
+    i=$((i+1))
+    $WAIT > /dev/null
 done
 
 echo "MAS started."
