@@ -1,4 +1,4 @@
 startmas.sh
-build/
+build/*
 server.txt
-work/
+work/*

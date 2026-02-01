@@ -50,16 +50,16 @@ rm -f work/*  # Remove agent history
 rm -rf conf/mas/*
 
 # Build agents based on instances
-for instance_filename in $INSTANCES_HOME/*.txt; do
+for instance_filename in $INSTANCES_HOME/*.plf; do
     type=$(<$instance_filename)  # Agent type name is the content of the instance file
-    type_filename="$TYPES_HOME/$type.txt"
+    type_filename="$TYPES_HOME/$type.plf"
     echo "Instance: " $instance_filename " of type: " $type_filename
     instance_base="${instance_filename##*/}"  # Extract instance base name
     cat "$type_filename" >> "$BUILD_HOME/$instance_base"
 done
 
 ls $BUILD_HOME
-cp $BUILD_HOME/*.txt work
+cp $BUILD_HOME/*.plf work
 
 # Start the LINDA server in a new console
 srvcmd="$PROLOG --noinfo -l $DALI_HOME/active_server_wi.pl --goal go(3010,'server.txt')."
