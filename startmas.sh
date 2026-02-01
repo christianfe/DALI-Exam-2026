@@ -28,10 +28,10 @@ fi
 # Define paths and variables
 #SICSTUS_HOME=/usr/local/sicstus4.6.0
 MAIN_HOME=../..
-DALI_HOME=../../src
+DALI_HOME=src
 CONF_DIR=conf
 PROLOG="sicstus"
-WAIT="sleep 2"
+WAIT="sleep 2.5"
 INSTANCES_HOME=mas/instances
 TYPES_HOME=mas/types
 BUILD_HOME=build
@@ -51,16 +51,16 @@ rm -f work/*  # Remove agent history
 rm -rf conf/mas/*
 
 # Build agents based on instances
-for instance_filename in $INSTANCES_HOME/*.plf; do
+for instance_filename in $INSTANCES_HOME/*.txt; do
     type=$(<$instance_filename)  # Agent type name is the content of the instance file
-    type_filename="$TYPES_HOME/$type.plf"
+    type_filename="$TYPES_HOME/$type.txt"
     echo "Instance: " $instance_filename " of type: " $type_filename
     instance_base="${instance_filename##*/}"  # Extract instance base name
     cat "$type_filename" >> "$BUILD_HOME/$instance_base"
 done
 
 ls $BUILD_HOME
-cp $BUILD_HOME/*.plf work
+cp $BUILD_HOME/*.txt work
 
 # Start the LINDA server in a new console
 srvcmd="$PROLOG --noinfo -l $DALI_HOME/active_server_wi.pl --goal go(3010,'server.txt')."
@@ -78,18 +78,27 @@ tmux split-window -v -t DALI_session:0 "$PROLOG --noinfo -l $DALI_HOME/active_us
 echo "Launching agents instances..."
 $WAIT > /dev/null  # Wait for a while
 
-# Launch agents in horizontal splits, one after the other
-# for agent_filename in $BUILD_HOME/*; do
-#     agent_base="${agent_filename##*/}"
-#     echo "Agent: $agent_base"
-#     # Create the agent configuration
-#     $current_dir/conf/makeconf.sh $agent_base $DALI_HOME
-#     # Start the agent in the new pane
-#     tmux split-window -v -t DALI_session "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
-#     $WAIT > /dev/null  # Wait a bit before launching the next agent
-# done
+# --- ONE WINDOW with all agents as panes (max 12) ---
+tmux new-window -t DALI_session -n agents
+tmux rename-window -t DALI_session:agents "agents"
+tmux set-window-option -t DALI_session:agents automatic-rename off
+tmux set-window-option -t DALI_session:agents allow-rename off
 
-i=1
+tmux set-option -t DALI_session -g pane-border-status top
+tmux set-option -t DALI_session -g pane-border-format "#T"
+
+
+pane_count=0
+
+# helper: choose the largest pane to split (reduces "no space for new pane")
+largest_pane() {
+  tmux list-panes -t DALI_session:agents -F "#{pane_id} #{pane_width} #{pane_height}" \
+  | awk '{print $1, $2*$3}' \
+  | sort -nr -k2 \
+  | head -n 1 \
+  | awk '{print $1}'
+}
+
 for agent_filename in $BUILD_HOME/*; do
     agent_base="${agent_filename##*/}"
     echo "Agent: $agent_base"
@@ -97,18 +106,52 @@ for agent_filename in $BUILD_HOME/*; do
     # Create the agent configuration
     $current_dir/conf/makeconf.sh $agent_base $DALI_HOME
 
-    # Create a new tmux window for this agent
-    tmux new-window -t DALI_session -n $agent_filename \
-      "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
+    if [ "$pane_count" -eq 0 ]; then
+        # first agent runs in pane 0
+        tmux send-keys -t DALI_session:agents.0 \
+          "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME" C-m
+        tmux select-pane -t DALI_session:agents.0 -T "$agent_base"
+        pane_count=1
+        tmux select-layout -t DALI_session:agents tiled
+        $WAIT > /dev/null
+        continue
+    fi
 
-    i=$((i+1))
+
+    # split the largest pane (best chance to avoid 'no space')
+    tgt="$(largest_pane)"
+
+    # decide split direction: if wide, split horizontally; else vertically
+    dims=$(tmux display-message -p -t "$tgt" "#{pane_width} #{pane_height}")
+    w=$(echo "$dims" | awk '{print $1}')
+    h=$(echo "$dims" | awk '{print $2}')
+
+    if [ "$w" -gt "$h" ]; then
+      tmux split-window -h -t "$tgt" \
+        "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
+    else
+      tmux split-window -v -t "$tgt" \
+        "$current_dir/conf/startagent.sh $agent_base $PROLOG $DALI_HOME"
+    fi
+
+    # set title on the *new* active pane
+    tmux select-pane -T "$agent_base"
+
+    pane_count=$((pane_count + 1))
+    tmux select-layout -t DALI_session:agents tiled
+
     $WAIT > /dev/null
 done
 
+
 echo "MAS started."
 
+
+
 # Select an even layout to properly display the panes
-tmux select-layout -t DALI_session tiled
+# tmux select-layout -t DALI_session tiled
+tmux select-layout -t DALI_session:agents tiled
+
 
 # Attach to the session so you can see everything
 tmux attach -t DALI_session

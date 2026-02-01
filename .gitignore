@@ -1,4 +1,5 @@
-startmas.sh
+# startmas.sh
 build/*
 server.txt
 work/*
+conf/mas/
