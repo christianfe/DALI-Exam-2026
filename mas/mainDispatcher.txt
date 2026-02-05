@@ -75,13 +75,13 @@ ambulance_statusE(available) :>
 
 dispatch_refusedE(Loc, S) :>
     nl,
-    sleep(2),
     write('[E] l ambulanza ha rifiutato di andare a '), write(Loc), write(' perche '), write(S),
     dispatched_ambulance(A),
     next_ambulance(A, A2),
     retract(dispatched_ambulance(A)),
     assert(dispatched_ambulance(A2)),
-    write(' provo a mandare '), write(A2),
+    sleep(2),
+    write('[I] provo a mandare '), write(A2), write(' a '), write(Loc),
     messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
 
 
