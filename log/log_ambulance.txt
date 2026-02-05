@@ -1,0 +1,3 @@
+send_message(send_message(ambulance_ack(dispatch,roma),ambulance))
+send_message(send_message(report(emergency_retired,roma),ambulance))
+send_message(send_message(ambulance_status(available),ambulance))

@@ -27,4 +27,3 @@ FOR /F "tokens=*" %%G IN ('dir /b mas\*.txt') DO (
     call conf/startagent %%G "%prolog%" "%dali_home%"
     %WAIT% >nul 
 )
-pause
