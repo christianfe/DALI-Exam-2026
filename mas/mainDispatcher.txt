@@ -3,12 +3,28 @@
 :- dynamic active_drone/1.
 :- dynamic state/1.
 
+:- dynamic ambulance/1.
+:- dynamic next_ambulance/2.
+:- dynamic dispatched_ambulance/1.
+
 drone(drone1).
 drone(drone2).
 next_drone(drone1, drone2).
 next_drone(drone2, drone1).
 active_drone(null).
 state(wakeup).
+
+ambulance(ambulance1).
+ambulance(ambulance2).
+
+next_ambulance(null, ambulance2).
+next_ambulance(ambulance1, ambulance2).
+next_ambulance(ambulance2, ambulance1).
+
+dispatched_ambulance(null).
+
+
+
 
 turn_on_system :- state(wakeup).
 turn_on_systemI :> 
@@ -33,9 +49,6 @@ im_rechargingE(Drone) :>
     nl,
     write(Drone), write(' scarico, potenziale sostituto: '),write(DroneNext), write(' inviata').
 
-report_emergencyE(Loc, Type) :> 
-    nl,
-    write('emergenza a '), write(Loc), write(' di tipo '), write(Type).
 
 call_emergencyE(Loc, null) :> 
     nl,
@@ -43,3 +56,20 @@ call_emergencyE(Loc, null) :>
     active_drone(Drone),
     messageA(Drone, send_message(request_recognition(Loc), mainDispatcher)),
     write(Drone).
+
+report_emergencyE(Loc, fire) :>
+    write('fuoco porco dio').
+
+report_emergencyE(Loc, accident) :>
+    nl,
+    dispatched_ambulance(A),
+    ambulance(A),
+    next_ambulance(A, A2),
+    retract(dispatched_ambulance(A)),
+    assert(dispatched_ambulance(A2)),
+    write('!!! incidente segnalato !!!'),write(' Provo a mandare '), write(A2), write(' a '), write(Loc),
+    messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
+
+    
+dispatch_refusedE(Loc, reason(busy)) :>
+    write('l ambulanza si e rifiutata').
