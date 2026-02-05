@@ -54,11 +54,11 @@ report_emergencyE(Loc, fire) :>
 
 report_emergencyE(Loc, ambulance) :>
     nl,
-    write('!!! incidente segnalato !!!'),write(' Provo a mandare '), write(A2),
     dispatched_ambulance(A),
     next_ambulance(A, A2),
     retract(dispatched_ambulance(A)),
     assert(dispatched_ambulance(A2)),
+    write('!!! incidente segnalato a '), write(Loc),write('!!! Provo a mandare '), write(A2),
     messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
     
 call_emergencyE(Loc, null) :> 
