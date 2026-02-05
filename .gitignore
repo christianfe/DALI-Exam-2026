@@ -4,3 +4,9 @@ server.txt
 work/*
 conf/mas/
 log/*
+conf/ambulance.txt
+conf/ambulance1.txt
+conf/ambulance2.txt
+conf/dispatcher.txt
+conf/mainDispatcher.txt
+conf/fireRescue1.txt

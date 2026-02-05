@@ -67,6 +67,3 @@ call_emergencyE(Loc, null) :>
     active_drone(Drone),
     messageA(Drone, send_message(request_recognition(Loc), mainDispatcher)),
     write(Drone).
-
-dispatch_refusedE(Loc, reason(busy)) :>
-    write('l ambulanza si e rifiutata').

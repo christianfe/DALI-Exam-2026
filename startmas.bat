@@ -9,7 +9,7 @@ set prolog=%sicstus_home%\spwin.exe
 set WAIT=timeout /t 3
 
 ::del /q tmp\*.*
-del /q work\*.pl
+del /q work\*
 copy mas\*.txt work
 
 set daliH=%dali_home:\=/%
