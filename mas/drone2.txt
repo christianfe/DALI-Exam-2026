@@ -60,7 +60,7 @@ spot_accidentE :>
         dispatcher(D),
         nl,
         write('!!! ferito trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, accident), drone2)).
+        messageA(D, send_message(report_emergency(Loc, ambulance), drone2)).
 
 request_recognitionE(Loc) :>
         random(0, 100, X),
@@ -89,6 +89,6 @@ ricognizioneA(Loc, X) :>
         X < 30,
         nl,
         write('!!! incendio trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, accident), drone2)).
+        messageA(D, send_message(report_emergency(Loc, ambulance), drone2)).
 
 gotoA(Loc) :> retractall(drone_position(L)), assert(drone_position(Loc)).
