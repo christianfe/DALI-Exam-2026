@@ -1,3 +1,4 @@
-send_message(send_message(ambulance_ack(dispatch,roma),ambulance))
-send_message(send_message(report(emergency_retired,roma),ambulance))
+send_message(send_message(ambulance_ack(dispatch,viaRoma),ambulance))
+send_message(send_message(report(emergency_retired,viaRoma),ambulance))
 send_message(send_message(ambulance_status(available),ambulance))
+make(maybe_end_shift)
