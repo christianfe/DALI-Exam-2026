@@ -32,8 +32,8 @@ DALI_HOME=src
 CONF_DIR=conf
 PROLOG="sicstus"
 WAIT="sleep 2.5"
-INSTANCES_HOME=mas/instances
-TYPES_HOME=mas/types
+INSTANCES_HOME=mas_linux/instances
+TYPES_HOME=mas_linux/types
 BUILD_HOME=build
 
 # Check if SICStus Prolog exists and is executable
