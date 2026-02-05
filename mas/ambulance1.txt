@@ -32,7 +32,7 @@ dispatchE(Loc) :>
     state(S),
     S \= idle,
     dispatcher(D),
-    messageA(D, send_message(dispatch_refused(Loc, reason(S)), ambulance1)),
+    messageA(D, send_message(dispatch_refused(Loc, S), ambulance1)),
     write('[E] dispatch refused to '), write(Loc), write(' reason='), write(S), nl.
 
 move_to_job :- state(en_route).

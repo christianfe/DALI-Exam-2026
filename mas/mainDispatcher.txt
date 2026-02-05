@@ -30,14 +30,14 @@ turn_on_system :- state(wakeup).
 turn_on_systemI :> 
     retract(state(S)), 
     nl,
-    write('faccio partire la perlustrazione!'),
+    write('[I] faccio partire la perlustrazione!'),
     messageA(drone1, send_message(activate, mainDispatcher)).
 
 im_activeE(Drone) :> 
     retract(active_drone(null)),
     assert(active_drone(Drone)), 
     nl,
-    write(Drone),
+    write('[I] '), write(Drone),
     write(' attivo').
 
 im_rechargingE(Drone) :>
@@ -47,7 +47,7 @@ im_rechargingE(Drone) :>
     next_drone(Drone, DroneNext),
     messageA(DroneNext, send_message(activate, mainDispatcher)),
     nl,
-    write(Drone), write(' scarico, potenziale sostituto: '),write(DroneNext), write(' inviata').
+    write('[I] '), write(Drone), write(' scarico, potenziale sostituto: '),write(DroneNext), write(' inviata').
 
 report_emergencyE(Loc, fire) :>
     write('fuoco porco dio').
@@ -58,9 +58,33 @@ report_emergencyE(Loc, ambulance) :>
     next_ambulance(A, A2),
     retract(dispatched_ambulance(A)),
     assert(dispatched_ambulance(A2)),
-    write('!!! incidente segnalato a '), write(Loc),write('!!! Provo a mandare '), write(A2),
+    write('[E] !!! incidente segnalato a '), write(Loc),write('!!! Provo a mandare '), write(A2),
     messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
-    
+
+ambulance_ackE(dispatch, Loc) :>
+    nl,
+    write('[E] ambulanza accetta la chiamata a '), write(Loc).
+
+reportE(emergency_retired, Loc) :>
+    nl,
+    write('[E] emergenza a '), write(Loc), write(' risolta dall ambulanza').
+
+ambulance_statusE(available) :>
+    nl,
+    write('[E] ambulanza pronta per nuove chiamate').
+
+dispatch_refusedE(Loc, S) :>
+    nl,
+    sleep(2),
+    write('[E] l ambulanza ha rifiutato di andare a '), write(Loc), write(' perche '), write(S),
+    dispatched_ambulance(A),
+    next_ambulance(A, A2),
+    retract(dispatched_ambulance(A)),
+    assert(dispatched_ambulance(A2)),
+    write(' provo a mandare '), write(A2),
+    messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
+
+
 call_emergencyE(Loc, null) :> 
     nl,
     write('!!chiamata di emergenza!!: chiedo ricognizione a  '),
