@@ -1,2 +1,0 @@
-send_message(send_message(im_active(drone1),drone1))
-send_message(send_message(im_recharging(drone1),drone1))
