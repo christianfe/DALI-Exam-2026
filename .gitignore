@@ -3,4 +3,4 @@ build/*
 server.txt
 work/*
 conf/mas/
-log/
+log/*
