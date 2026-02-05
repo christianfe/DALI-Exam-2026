@@ -25,14 +25,14 @@ dispatchE(Loc) :>
     retract(current_job(null)),
     assert(current_job(Loc)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_ack(dispatch,Loc), ambulance2)),
+    messageA(D, send_message(ambulance_ack(dispatch), ambulance2)),
     write('[E] dispatch received to '), write(Loc), nl.
 
 dispatchE(Loc) :>
     state(S),
     S \= idle,
     dispatcher(D),
-    messageA(D, send_message(dispatch_refused(Loc, reason(S)), ambulance2)),
+    messageA(D, send_message(dispatch_refused(Loc, S), ambulance2)),
     write('[E] dispatch refused to '), write(Loc), write(' reason='), write(S), nl.
 
 move_to_job :- state(en_route).

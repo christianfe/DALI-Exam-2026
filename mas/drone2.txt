@@ -9,6 +9,7 @@ loc(base).
 loc(bisenti).
 loc(castiglione).
 loc(castilenti).
+
 next_place_tour(base, bisenti).
 next_place_tour(bisenti, castiglione).
 next_place_tour(castiglione, castilenti).
@@ -49,14 +50,14 @@ battery_checkI :>
 
 
 spot_fireE :>
-        loc(Loc),
+        drone_position(Loc),
         dispatcher(D),
         nl,
         write('!!! incendio trovato !!!'),
         messageA(D, send_message(report_emergency(Loc, fire), drone2)).
 
 spot_accidentE :>
-        loc(Loc),
+        drone_position(Loc),
         dispatcher(D),
         nl,
         write('!!! ferito trovato !!!'),
