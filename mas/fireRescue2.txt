@@ -1,22 +1,22 @@
-:- write('im the ambulance'), nl.
+:- write('im the fireResque'), nl.
 
 :- dynamic dispatcher/1.
 :- dynamic state/1.
-:- dynamic ambulance_position/1.
+:- dynamic unit_position/1.
 :- dynamic current_job/1.
 
 dispatcher(mainDispatcher).
 
 state(idle).
-ambulance_position(base).
+unit_position(base).
 current_job(null).
 
 activateE :>
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(available, ambulance1), ambulance1)),
-    write('ambulance ready'), nl.
+    messageA(D, send_message(fireResque_status(available, fireRescue2), fireRescue2)),
+    write('fireResque ready'), nl.
 
 dispatchE(Loc) :>
     state(idle),
@@ -25,14 +25,14 @@ dispatchE(Loc) :>
     retract(current_job(null)),
     assert(current_job(Loc)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_ack(dispatch,Loc), ambulance1)),
+    messageA(D, send_message(fireResque_ack(dispatch,Loc), fireRescue2)),
     write('[E] dispatch received to '), write(Loc), nl.
 
 dispatchE(Loc) :>
     state(S),
     S \= idle,
     dispatcher(D),
-    messageA(D, send_message(dispatch_refused(Loc, S, ambulance1), ambulance1)),
+    messageA(D, send_message(dispatch_refused(Loc, S, fireRescue2), fireRescue2)),
     write('[E] dispatch refused to '), write(Loc), write(' reason='), write(S), nl.
 
 move_to_job :- state(en_route).
@@ -51,7 +51,7 @@ do_rescueI :>
     write('[I] rescuing at '), write(Loc), nl,
     rescue_peopleA,
     dispatcher(D),
-    messageA(D, send_message(report(emergency_retired,Loc, ambulance1), ambulance1)),
+    messageA(D, send_message(report(emergency_retired,Loc, fireRescue2), fireRescue2)),
     retract(state(rescuing)),
     assert(state(returning)).
 
@@ -65,45 +65,42 @@ return_baseI :>
     retract(state(returning)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(available, ambulance1), ambulance1)),
+    messageA(D, send_message(fireResque_status(available, fireRescue2), fireRescue2)),
     write('[I] back to base - idle'), nl,
     maybe_end_shiftA.
 
 maybe_end_shiftA :>
     random(0, 1000, X),
-    X > 800,
+    X > 899,
     retract(state(idle)),
     assert(state(pause)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(unavailable, ambulance1), ambulance1)),
+    messageA(D, send_message(fireResque_status(unavailable, fireRescue2), fireRescue2)),
     write('[A] end of shift -> UNAVAILABLE'), nl.
 
 maybe_end_shiftA :>
     random(0, 1000, X),
-    X =< 800,
+    X =< 899,
     true.
 
 wakeup_check :- state(pause).
-
 wakeup_checkI :>
-    write('[I] sleeping...'), nl,
-    sleep(8),
+    sleep(30),
     random(0, 1000, X),
     X > 699,
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(available, ambulance1), ambulance1)),
-    write('[I] team ready -> AVAILABLE'), nl.
+    messageA(D, send_message(fireResque_status(available, fireRescue2), fireRescue2)),
+    write('[I] wakeup -> AVAILABLE'), nl.
 
 wakeup_checkI :>
-    write('[I] check if team is ready...'), nl,
-    sleep(5),
+    sleep(30),
     random(0, 1000, X),
     X =< 699,
     write('[I] still resting'), nl.
 
-gotoA(Loc) :> retractall(ambulance_position(_)), assert(ambulance_position(Loc)).
+gotoA(Loc) :> retractall(unit_position(_)), assert(unit_position(Loc)).
 
 rescue_peopleA :>
     write('[A] rescue in progress'), nl,

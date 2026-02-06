@@ -15,7 +15,7 @@ activateE :>
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireResque_status(available), fireRescue1)),
+    messageA(D, send_message(fireResque_status(available, fireRescue1), fireRescue1)),
     write('fireResque ready'), nl.
 
 dispatchE(Loc) :>
@@ -32,7 +32,7 @@ dispatchE(Loc) :>
     state(S),
     S \= idle,
     dispatcher(D),
-    messageA(D, send_message(dispatch_refused(Loc, reason(S)), fireRescue1)),
+    messageA(D, send_message(dispatch_refused(Loc, S, fireRescue1), fireRescue1)),
     write('[E] dispatch refused to '), write(Loc), write(' reason='), write(S), nl.
 
 move_to_job :- state(en_route).
@@ -51,7 +51,7 @@ do_rescueI :>
     write('[I] rescuing at '), write(Loc), nl,
     rescue_peopleA,
     dispatcher(D),
-    messageA(D, send_message(report(emergency_retired,Loc), fireRescue1)),
+    messageA(D, send_message(report(emergency_retired,Loc, fireRescue1), fireRescue1)),
     retract(state(rescuing)),
     assert(state(returning)).
 
@@ -65,7 +65,7 @@ return_baseI :>
     retract(state(returning)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireResque_status(available), fireRescue1)),
+    messageA(D, send_message(fireResque_status(available, fireRescue1), fireRescue1)),
     write('[I] back to base - idle'), nl,
     maybe_end_shiftA.
 
@@ -75,7 +75,7 @@ maybe_end_shiftA :>
     retract(state(idle)),
     assert(state(pause)),
     dispatcher(D),
-    messageA(D, send_message(fireResque_status(unavailable), fireRescue1)),
+    messageA(D, send_message(fireResque_status(unavailable, fireRescue1), fireRescue1)),
     write('[A] end of shift -> UNAVAILABLE'), nl.
 
 maybe_end_shiftA :>
@@ -91,7 +91,7 @@ wakeup_checkI :>
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireResque_status(available), fireRescue1)),
+    messageA(D, send_message(fireResque_status(available, fireRescue1), fireRescue1)),
     write('[I] wakeup -> AVAILABLE'), nl.
 
 wakeup_checkI :>
