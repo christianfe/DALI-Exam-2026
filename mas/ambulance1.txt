@@ -65,7 +65,7 @@ return_baseI :>
     retract(state(returning)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(available, Me), Me)),
+    messageA(D, inform(ambulance_status(available, Me), Me)),
     write('[I] back to base - idle'), nl,
     maybe_end_shiftA.
 
