@@ -29,7 +29,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 - **Goals**:
     - Save people and turn off fires.
     - Ensure prompt and coordinated reaction to emergencies.
-    - Emergency control and escalation prevention.
+    - Emergency control.
 - **Roles and Interactions**:
     - `Drone → Dispatcher`: sends alarm messages.
     - `Drone → Dispatcher`: inform about emergency type.
@@ -40,8 +40,6 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
     - `FireRescue → Dispatcher`: request support
 
 ---
-
-#TODO HERE
 
 ### 1.3 Event Table
 
@@ -133,4 +131,6 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
+
 
