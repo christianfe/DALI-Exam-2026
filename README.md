@@ -59,30 +59,36 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | `request_recognition(Loc)` | external | Dispatcher  |
 | `spot_fire(Loc)`           | external | environment |
 | `spot_accident(Loc)`       | external | environment |
-| `battery_low`              | Internal | drone       |
+| `battery_check`              | Internal | drone       |
 
 #### Ambulance
 
 | Event                  | Type     | Source      |
 | ---------------------- | -------- | ----------- |
 | `dispatch(Loc)`        | external | Dispatcher  |
-| `spot_fire(Loc)`       | external | environment |
-| `dispatchN(Loc)`       | present  | Dispatcher  |
-| `spot_fireN(Loc)`      | present  | environment |
-| `start`                | internal | ambulance   |
+| `activate`                | external | Dispatcher   |
 | `accept_dispatch(Loc)` | internal | ambulance   |
 | `refuse_dispatch(Loc)` | internal | ambulance   |
-| `need_firerescue(Loc)` | internal | ambulance   |
-| `do_rescue(Loc)`       | internal | ambulance   |
-| `end_shift`            | internal | ambulance   |
-| `wakeup`               | internal | ambulance   |
+| `move_to_job`       | internal | ambulance   |
+| `do_rescue`       | internal | ambulance   |
+| `return_base`       | internal | ambulance   |
+| `maybe_end_shift`            | internal | ambulance   |
+| `wakeup_check`               | internal | ambulance   |
 
 #### FireRescue
 
 | Event                | Type     | Source      |
 | -------------------- | -------- | ----------- |
-| `dispatch(Loc)`      | external | Dispatcher  |
-| `spot_accident(Loc)` | external | environment |
+| `dispatch(Loc)`        | external | Dispatcher  |
+| `activate`                | external | Dispatcher   |
+| `accept_dispatch(Loc)` | internal | fireunit   |
+| `refuse_dispatch(Loc)` | internal | fireunit   |
+| `move_to_job`       | internal | fireunit   |
+| `do_rescue`       | internal | fireunit   |
+| `return_base`       | internal | fireunit   |
+| `maybe_end_shift`            | internal | fireunit   |
+| `wakeup_check`               | internal | fireunit   |
+
 
 ---
 
@@ -92,21 +98,22 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 | Action                      | Description                                         |
 | --------------------------- | --------------------------------------------------- |
-| `rescue_people`             | rescues people                                      |
-| `report(emergency_retired)` | Notifies the Dispatcher that evacuation is complete |
+| `goto`             | move to the desired location                                   |
+| `rescue_people` | rescue peoples and turn off fire |
 
 ### Fireescue
 
 | Action                      | Description                                         |
 | --------------------------- | --------------------------------------------------- |
-| `turn_off_fire`             | turn off the fire                                   |
-| `report(emergency_retired)` | Notifies the Dispatcher that evacuation is complete |
+| `goto`             | move to the desired location                                   |
+| `rescue_people` | rescue peoples and turn off fire |
 
 ### Drone
 
 | Action     | Description        |
 | ---------- | ------------------ |
-| `recharge` | charge the battery |
+| `goto(Loc)` | move to the desired location |
+| `recharge` | charge its battery |
 
 ---
 
@@ -126,3 +133,4 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
