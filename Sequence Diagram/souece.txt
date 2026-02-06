@@ -11,35 +11,56 @@ participant AmbulanceUnit
 
 participant FireRescueUnit
 
-alt Segnalazione
+alt Segnalazione esterna
   Dispatcher->Dispatcher: call_emergency(Loc, Type)\n
 else Avvistamento drone
-  DroneScout->Dispatcher: report_emergency(Loc, Type)
+  alt avvistato incendio
+    DroneScout->Dispatcher: report_emergency(Loc, Type)
+  else avvistato ferito
+    DroneScout->Dispatcher: report_emergency(Loc, Type)
+  end
 end
 
-alt Info sufficienti
-  Dispatcher->>Dispatcher: emergency_type(Type)
-else Info insufficienti
+alt dispatcher non conosce il tipo di emergenza
   Dispatcher->DroneScout: request_recognition(Loc)
   DroneScout->Dispatcher: report_emergency(Loc, Type)
 end
 
-alt Tipo medico
-  Dispatcher->AmbulanceUnit: dispatch(I, Loc)
-else Tipo incendio / estricazione
-  Dispatcher->FireRescueUnit: dispatch(I, Loc)
+alt emergenza feriti
+  Dispatcher->AmbulanceUnit: dispatch(Loc)
+  
+  alt richiesta accettata
+    
+    AmbulanceUnit -> Dispatcher: ambulance_ack(dispatch, Loc)
+  
+
+  else richiesta non accettata
+   
+  AmbulanceUnit -> Dispatcher: dispatch_refused(Loc, Reason, AmbulanceUnit)
+   
+  end
+  
+
+  
+else emergenza incendio
+  Dispatcher->FireRescueUnit: dispatch(Loc)
+  
+    alt richiesta accettata
+    
+    FireRescueUnit -> Dispatcher: fireResque_ack(dispatch, Loc)
+  
+
+  else richiesta non accettata
+   
+  AmbulanceUnit -> Dispatcher: dispatch_refused(Loc, Reason, FireUnit)
+   
+  end
+  
+  
 end
 
-group Intervento
-  alt Richiesta supporto
-    AmbulanceUnit->Dispatcher: support_request(I)
-    Dispatcher->FireRescueUnit: dispatch(I, Loc)
-  else
-    FireRescueUnit->Dispatcher: support_request(I)
-    Dispatcher->AmbulanceUnit: dispatch(I, Loc)
-  end
-
-  AmbulanceUnit->Dispatcher: intervention_complete(I)
-  FireRescueUnit->Dispatcher: intervention_complete(I)
-  Dispatcher->Dispatcher: close_incident(I)
+group Intervento Completato
+  
+  AmbulanceUnit->Dispatcher: report(emergency_retired, Loc, AmbulanceUnit)
+  FireRescueUnit->Dispatcher: report(emergency_retired, Loc, FireUnit)
 end
