@@ -25,7 +25,7 @@ dispatchE(Loc) :>
     retract(current_job(null)),
     assert(current_job(Loc)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_ack(dispatch,Loc), Me)),
+    messageA(D, accept(ambulance_ack(dispatch,Loc), Me)),
     write('[E] dispatch received to '), write(Loc), nl.
 
 dispatchE(Loc) :>

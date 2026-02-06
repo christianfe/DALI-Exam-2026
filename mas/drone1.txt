@@ -37,7 +37,7 @@ activateE :>
     retract(state(pause)), 
     assert(state(working)), 
     dispatcher(D),
-    messageA(D, send_message(im_active(drone1), drone1)),
+    messageA(D, accept(im_active(drone1), drone1)),
     nl,
     write('sto facendo il tour!').
 
