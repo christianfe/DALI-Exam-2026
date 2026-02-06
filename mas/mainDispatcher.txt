@@ -42,14 +42,14 @@ turn_on_systemI(X) :>
     nl,
     X > 500,
     write('[I] faccio partire la perlustrazione!'), write(' seed: '), write(X),
-    messageA(drone1, send_message(activate, mainDispatcher)).
+    messageA(drone1, send_message(activate, Me)).
 
 turn_on_systemI(X) :> 
     retract(state(S)), 
     nl,
     X < 501,
     write('[I] faccio partire la perlustrazione!'), write(' seed: '), write(X),
-    messageA(drone2, send_message(activate, mainDispatcher)).
+    messageA(drone2, send_message(activate, Me)).
 
 
 im_activeE(Drone) :> 
@@ -66,7 +66,7 @@ im_rechargingE(Drone) :>
     assert(active_drone(null)),
     next_drone(Drone, DroneNext),
     write('[I] '), write(Drone), write(' scarico quindi sostituisco con '),write(DroneNext),
-    messageA(DroneNext, send_message(activate, mainDispatcher)).
+    messageA(DroneNext, send_message(activate, Me)).
 
 report_emergencyE(Loc, fire) :>
     nl,
@@ -75,7 +75,7 @@ report_emergencyE(Loc, fire) :>
     retract(dispatched_firerescue(F)),
     assert(dispatched_firerescue(F2)),
     write('[E] !!! incendio segnalato a '), write(Loc),write('!!! Provo a mandare '), write(F2),
-    messageA(F2, send_message(dispatch(Loc), mainDispatcher)).
+    messageA(F2, send_message(dispatch(Loc), Me)).
 
 report_emergencyE(Loc, ambulance) :>
     nl,
@@ -84,11 +84,11 @@ report_emergencyE(Loc, ambulance) :>
     retract(dispatched_ambulance(A)),
     assert(dispatched_ambulance(A2)),
     write('[E] !!! incidente segnalato a '), write(Loc),write('!!! Provo a mandare '), write(A2),
-    messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
+    messageA(A2, send_message(dispatch(Loc), Me)).
 
-fireResque_ackE(dispatch, Loc) :>
+fireRescue_ackE(dispatch, Loc) :>
     nl,
-    write('[E] fireResque accetta la chiamata a '), write(Loc).
+    write('[E] fireRescue accetta la chiamata a '), write(Loc).
 
 ambulance_ackE(dispatch, Loc) :>
     nl,
@@ -103,9 +103,17 @@ ambulance_statusE(available, Agent) :>
     nl,
     write('[E] ambulanza '), write(Agent), write(' pronta per nuove chiamate').
 
-fireResque_statusE(available, Agent) :>
+ambulance_statusE(unavailable, Agent) :>
     nl,
-    write('[E] fireResque '), write(Agent), write(' pronto per nuove chiamate').
+    write('[E] ambulanza '), write(Agent), write(' inizia perido di riposo').
+
+fireRescue_statusE(available, Agent) :>
+    nl,
+    write('[E] fireRescue '), write(Agent), write(' pronto per nuove chiamate').
+
+fireRescue_statusE(unavailable, Agent) :>
+    nl,
+    write('[E] fireRescue '), write(Agent), write(' inizia perido di riposo').
 
 
 
@@ -119,12 +127,12 @@ dispatch_refusedE(Loc, S, Agent) :>
     assert(dispatched_ambulance(A2)),
     sleep(3),
     write('[I] provo a mandare '), write(A2), write(' a '), write(Loc),
-    messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
+    messageA(A2, send_message(dispatch(Loc), Me)).
 
 
 dispatch_refusedE(Loc, S, Agent) :>
     nl,
-    write('[E] il fireResque ha rifiutato di andare a '), write(Loc), write(' perche '), write(S),
+    write('[E] il fireRescue ha rifiutato di andare a '), write(Loc), write(' perche '), write(S),
     firerescue_unit(Agent),
     dispatched_firerescue(F),
     next_firerescue(F, F2),
@@ -132,11 +140,11 @@ dispatch_refusedE(Loc, S, Agent) :>
     assert(dispatched_firerescue(F2)),
     sleep(3),
     write('[I] provo a mandare '), write(F2), write(' a '), write(Loc),
-    messageA(F2, send_message(dispatch(Loc), mainDispatcher)).
+    messageA(F2, send_message(dispatch(Loc), Me)).
 
 call_emergencyE(Loc, null) :> 
     nl,
     write('!!chiamata di emergenza!!: chiedo ricognizione a  '),
     active_drone(Drone),
-    messageA(Drone, send_message(request_recognition(Loc), mainDispatcher)),
+    messageA(Drone, send_message(request_recognition(Loc), Me)),
     write(Drone).

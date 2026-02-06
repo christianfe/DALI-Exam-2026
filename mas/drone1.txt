@@ -6,14 +6,28 @@
 :- dynamic drone_position/1.
 
 loc(base).
-loc(bisenti).
-loc(castiglione).
-loc(castilenti).
+loc(via_roma).
+loc(via_nazionale).
+loc(via_garibaldi).
+loc(via_verdi).
+loc(via_manzoni).
+loc(via_dante).
+loc(via_marconi).
+loc(via_mazzini).
+loc(via_cavour).
+loc(via_vittorio_emanuele).
 
-next_place_tour(base, bisenti).
-next_place_tour(bisenti, castiglione).
-next_place_tour(castiglione, castilenti).
-next_place_tour(castilenti, base).
+next_place_tour(base, via_roma).
+next_place_tour(via_roma, via_nazionale).
+next_place_tour(via_nazionale, via_garibaldi).
+next_place_tour(via_garibaldi, via_verdi).
+next_place_tour(via_verdi, via_manzoni).
+next_place_tour(via_manzoni, via_dante).
+next_place_tour(via_dante, via_marconi).
+next_place_tour(via_marconi, via_mazzini).
+next_place_tour(via_mazzini, via_cavour).
+next_place_tour(via_cavour, via_vittorio_emanuele).
+next_place_tour(via_vittorio_emanuele, base).
 
 drone_position(base).
 dispatcher(mainDispatcher).
