@@ -36,12 +36,21 @@ dispatched_firerescue(null).
 
 
 
-turn_on_system :- state(wakeup).
-turn_on_systemI :> 
+turn_on_system(X) :- state(wakeup), random(0, 1000, X).
+turn_on_systemI(X) :>
     retract(state(S)), 
     nl,
-    write('[I] faccio partire la perlustrazione!'),
+    X > 500,
+    write('[I] faccio partire la perlustrazione!'), write(' seed: '), write(X),
     messageA(drone1, send_message(activate, mainDispatcher)).
+
+turn_on_systemI(X) :> 
+    retract(state(S)), 
+    nl,
+    X < 501,
+    write('[I] faccio partire la perlustrazione!'), write(' seed: '), write(X),
+    messageA(drone2, send_message(activate, mainDispatcher)).
+
 
 im_activeE(Drone) :> 
     retract(active_drone(null)),
@@ -51,13 +60,13 @@ im_activeE(Drone) :>
     write(' attivo').
 
 im_rechargingE(Drone) :>
+    nl,
     active_drone(Drone),
     retract(active_drone(Drone)),
     assert(active_drone(null)),
     next_drone(Drone, DroneNext),
-    messageA(DroneNext, send_message(activate, mainDispatcher)),
-    nl,
-    write('[I] '), write(Drone), write(' scarico, potenziale sostituto: '),write(DroneNext), write(' inviata').
+    write('[I] '), write(Drone), write(' scarico quindi sostituisco con '),write(DroneNext),
+    messageA(DroneNext, send_message(activate, mainDispatcher)).
 
 report_emergencyE(Loc, fire) :>
     nl,
@@ -108,7 +117,7 @@ dispatch_refusedE(Loc, S, Agent) :>
     next_ambulance(A, A2),
     retract(dispatched_ambulance(A)),
     assert(dispatched_ambulance(A2)),
-    sleep(2),
+    sleep(3),
     write('[I] provo a mandare '), write(A2), write(' a '), write(Loc),
     messageA(A2, send_message(dispatch(Loc), mainDispatcher)).
 
@@ -121,7 +130,7 @@ dispatch_refusedE(Loc, S, Agent) :>
     next_firerescue(F, F2),
     retract(dispatched_firerescue(F)),
     assert(dispatched_firerescue(F2)),
-    sleep(2),
+    sleep(3),
     write('[I] provo a mandare '), write(F2), write(' a '), write(Loc),
     messageA(F2, send_message(dispatch(Loc), mainDispatcher)).
 

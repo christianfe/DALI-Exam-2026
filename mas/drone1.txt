@@ -45,7 +45,8 @@ battery_checkI :>
         retract(state(working)),
         assert(state(pause)),
         gotoA(base),
-        write('--- mi sto ricaricando ---').
+        write('--- mi sono scaricato ---'),
+        rechargeA.
 
 
 
@@ -93,3 +94,5 @@ ricognizioneA(Loc, X) :>
         messageA(D, send_message(report_emergency(Loc, ambulance), drone1)).
 
 gotoA(Loc) :> retractall(drone_position(L)), assert(drone_position(Loc)).
+
+rechargeA :> nl, write('--- mi sto ricaricando ---'), sleep(1).
