@@ -41,8 +41,6 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ---
 
-#TODO HERE
-
 ### 1.3 Event Table
 
 #### Dispatcher
@@ -133,5 +131,6 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
 
 
