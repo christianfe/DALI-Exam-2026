@@ -3,21 +3,17 @@ title Soccorso urbano
 autonumber
 
 participant Dispatcher
-
 participant DroneScout
-
-
 participant AmbulanceUnit
-
-participant FireRescueUnit
+participant FireFighter
 
 alt Segnalazione esterna
-  Dispatcher->Dispatcher: call_emergency(Loc, Type)\n
+  Dispatcher->Dispatcher: call_emergency(Loc, Type)
 else Avvistamento drone
   alt avvistato incendio
-    DroneScout->Dispatcher: report_emergency(Loc, Type)
-  else avvistato ferito
-    DroneScout->Dispatcher: report_emergency(Loc, Type)
+    DroneScout->Dispatcher: report_emergency(Loc, fire)
+  else avvistato incidente
+    DroneScout->Dispatcher: report_emergency(Loc, ambulance)
   end
 end
 
@@ -28,39 +24,21 @@ end
 
 alt emergenza feriti
   Dispatcher->AmbulanceUnit: dispatch(Loc)
-  
   alt richiesta accettata
-    
-    AmbulanceUnit -> Dispatcher: ambulance_ack(dispatch, Loc)
-  
-
+    AmbulanceUnit->Dispatcher: ambulance_ack(dispatch, Loc)
   else richiesta non accettata
-   
-  AmbulanceUnit -> Dispatcher: dispatch_refused(Loc, Reason, AmbulanceUnit)
-   
+    AmbulanceUnit->Dispatcher: dispatch_refused(Loc, Reason, AmbulanceUnit)
   end
-  
-
-  
 else emergenza incendio
-  Dispatcher->FireRescueUnit: dispatch(Loc)
-  
-    alt richiesta accettata
-    
-    FireRescueUnit -> Dispatcher: fireResque_ack(dispatch, Loc)
-  
-
+  Dispatcher->FireFighter: dispatch(Loc)
+  alt richiesta accettata
+    FireFighter->Dispatcher: fireFighter_ack(dispatch, Loc)
   else richiesta non accettata
-   
-  AmbulanceUnit -> Dispatcher: dispatch_refused(Loc, Reason, FireUnit)
-   
+    FireFighter->Dispatcher: dispatch_refused(Loc, Reason, FireFighter)
   end
-  
-  
 end
 
-group Intervento Completato
-  
+group Intervento completato
   AmbulanceUnit->Dispatcher: report(emergency_retired, Loc, AmbulanceUnit)
-  FireRescueUnit->Dispatcher: report(emergency_retired, Loc, FireUnit)
+  FireFighter->Dispatcher: report(emergency_retired, Loc, FireFighter)
 end
