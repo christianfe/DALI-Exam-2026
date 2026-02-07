@@ -1,0 +1,105 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TEST DISPATCHER agent (per testare Ambulance)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- write('I\'m the TEST dispatcher'), nl, nl.
+
+:- dynamic amb_status/1.
+:- dynamic pending_arrival/2.
+
+% stato ambulanza (unknown | available | unavailable)
+amb_status(unknown).
+
+ambulance(unitAmbulance01).
+ambulance(unitAmbulance02).
+
+% random helper
+rand_between(A,B,R) :- random_between(A,B,R).
+
+%%%%%%%%%%%%%%%%%%%%
+% EVENTI ESTERNI (E)
+%%%%%%%%%%%%%%%%%%%%
+
+% Ricevo status dall'ambulanza
+ambulance_statusE(S) :>
+    write('[E] got ambulance_status('), write(S), write(')'), nl.
+
+% Ricevo ack dall'ambulanza
+ambulance_ackE(What,Loc) :>
+    write('[E] got ambulance_ack('), write(What), write(','), write(Loc), write(')'), nl.
+
+% Ricevo rifiuto dispatch
+dispatch_refusedE(Loc,Reason) :>
+    write('[E] got dispatch_refused('), write(Loc), write(','), write(Reason), write(')'), nl.
+
+% Ricevo report fine emergenza
+reportE(emergency_retired,Loc) :>
+    write('[E] got report(emergency_retired,'), write(Loc), write(')'), nl.
+
+%%%%%%%%%%%%%%%%%%%%
+% EVENTI PRESENTI (N)
+%%%%%%%%%%%%%%%%%%%%
+
+% aggiorno stato ambulanza
+update_status(S) :-
+    ambulance_statusN(S).
+
+% invio periodico dispatch solo se ambulanza non è unavailable
+send_test_dispatch(Loc) :-
+    amb_status(S),
+    S \= unavailable,
+    choose_loc(Loc).
+
+% se ho una "pending arrival" e il timer è scaduto, invio arrived
+arrival_due(Loc) :-
+    pending_arrival(Loc,0).
+
+% tick dei contatori arrival (se ci sono)
+arrival_tick :-
+    pending_arrival(_,_).
+
+%%%%%%%%%%%%%%%%%%%%
+% EVENTI INTERNI (I)
+%%%%%%%%%%%%%%%%%%%%
+
+start :- true.
+
+startI :>
+    write('[I] dispatcher start'), nl.
+
+update_statusI(S) :>
+    retractall(amb_status(_)),
+    assert(amb_status(S)),
+    write('[I] stored amb_status='), write(S), nl.
+
+send_test_dispatchI(Loc) :>
+    ambulance(A),
+    write('[I] sending dispatch('), write(Loc), write(') to '), write(A), nl,
+    messageA(A, send_message(dispatch(Loc), dispatcher)),
+    % (OPZIONALE) simula arrivo dopo delay random 3..10s
+    rand_between(3,10,T),
+    retractall(pending_arrival(Loc,_)),
+    assert(pending_arrival(Loc,T)),
+    write('[I] will simulate arrived('), write(Loc), write(') in '), write(T), write('s'), nl.
+
+arrival_tickI :>
+    % decremento tutti i pending_arrival
+    pending_arrival(Loc,T),
+    T > 0,
+    T1 is T - 1,
+    retractall(pending_arrival(Loc,T)),
+    assert(pending_arrival(Loc,T1)).
+
+arrival_dueI(Loc) :>
+    ambulance(A),
+    write('[I] sending arrived('), write(Loc), write(') to '), write(A), nl,
+    messageA(A, send_message(arrived(Loc), dispatcher)),
+    retractall(pending_arrival(Loc,_)).
+
+%%%%%%%%%%%%%%%%%%%%
+% “DATABASE” LOC
+%%%%%%%%%%%%%%%%%%%%
+
+choose_loc(via_roma).
+choose_loc(piazza_duomo).
+choose_loc(via_nazionale).

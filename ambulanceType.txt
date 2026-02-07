@@ -1,38 +1,30 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% AMBULANCE agent 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- write('I\'m the ambulance agent').
+:- write('I\'m the ambulance agent'), nl,nl.
 
 :- dynamic status/1.
 :- dynamic busy/1.
 :- dynamic current_job/1.
+:- dynamic at/1.
+:- dynamic on_scene/1.
+:- dynamic support_requested/1.
 
-status(available).     % available | unavailable
-busy(no).              % yes | no
+at(base).
+on_scene(no).
+status(available).
+busy(no).        
 
 dispatcher(dispatcher).
 
-% calcolo probabilità data percentuale
 prob(Perc) :- random_between(0,99,R), R < Perc.
 
-%%%%%%%%%%%%%%%%%%%%
-% EVENTI ESTERNI (E)
-%%%%%%%%%%%%%%%%%%%%
+dispatchE(Loc) :>
+    write('E received dispatch to '), write(Loc), nl.
 
-% Dispatch arriva dal Dispatcher
-dispatchE(_Loc) :>
-    true.
+spot_fireE(Loc) :>
+    write('E spotted fire at '), write(Loc), nl.
 
-% Avvistamento incendio dall'ambiente
-spot_fireE(_Loc) :>
-    true.
+arrivedE :>
+    write('E arrived at '), write(Loc), nl.
 
-%%%%%%%%%%%%%%%%%%%%
-% EVENTI PRESENTI (N)
-%%%%%%%%%%%%%%%%%%%%
-
-% Accettazione/rifiuto dispatch
 accept_dispatch(Loc) :-
     dispatchN(Loc),
     status(available),
@@ -47,27 +39,30 @@ refuse_dispatch(Loc) :-
     status(available),
     busy(yes).
 
-% Proattività: se vedo incendio, chiedo supporto a dispatcher
+mark_arrived(Loc) :-
+    arrivedN(Loc),
+    current_job(Loc).
+
+mark_arrivedN(Loc) :>
+    retractall(at(_)),
+    assert(at(Loc)),
+    retractall(on_scene(_)),
+    assert(on_scene(yes)).
+
 need_firerescue(Loc) :-
     spot_fireN(Loc).
 
 do_rescue(Loc) :-
     status(available),
     busy(yes),
-    current_job(Loc).
+    current_job(Loc),
+    on_scene(yes).
 
 end_shift :-
     do_rescueP(_Loc),
     status(available),
     prob(10).
 
-wakeup :-
-    status(unavailable),
-    prob(30).
-
-%%%%%%%%%%%%%%%%%%%%
-% EVENTI INTERNI (I)
-%%%%%%%%%%%%%%%%%%%%
 
 start :- true.
 
@@ -78,69 +73,53 @@ startI :>
     assert(busy(no)),
     retractall(current_job(_)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(available), ambulance)).
+    messageA(D, send_message(ambulance_status(available), ambulance)),
+    write('[I] notified dispatcher: ambulance_status(available)'), nl.
 
-% Accetto dispatch: set busy + job, comunico e navigo
 accept_dispatchI(Loc) :>
     retractall(busy(_)),
     assert(busy(yes)),
     retractall(current_job(_)),
     assert(current_job(Loc)),
+    write('[I] sent ack to dispatcher'), nl,
     dispatcher(D),
     messageA(D, send_message(ambulance_ack(dispatch,Loc), ambulance)),
     navigate_toA(Loc).
 
-% Rifiuto dispatch: comunico motivo (unavailable o busy)
 refuse_dispatchI(Loc) :>
     status(unavailable),
+    write('[I] refuse dispatch('), write(Loc), write(') reason: unavailable'), nl,
     dispatcher(D),
     messageA(D, send_message(dispatch_refused(Loc, reason(unavailable)), ambulance)).
 
 refuse_dispatchI(Loc) :>
     status(available),
     busy(yes),
+    write('[I] refuse dispatch('), write(Loc), write(') reason: busy('), write(Cur), write(')'), nl,
     current_job(Cur),
     dispatcher(D),
     messageA(D, send_message(dispatch_refused(Loc, reason(busy(Cur))), ambulance)).
 
-% Incendio: chiedo FireRescue
 need_firerescueI(Loc) :>
+    write('[I] need fire support at '), write(Loc), write(' -> propose to dispatcher'), nl,
     dispatcher(D),
     messageA(D, propose(dispatch(firerescue,Loc), [], ambulance)).
+    
 
-% Rescue: azione minima + report, poi libero il job
 do_rescueI(Loc) :>
+    on_scene(yes).
     rescue_peopleA,
     reportA(emergency_retired),
     dispatcher(D),
     messageA(D, send_message(report(emergency_retired,Loc), ambulance)),
     retractall(busy(_)),
     assert(busy(no)),
-    retractall(current_job(_)).
+    retractall(current_job(_)),
+    write('[I] now IDLE (busy=no)'), nl.
 
-% Fine turno con 10% dopo un intervento
 end_shiftI :>
     retractall(status(_)),
     assert(status(unavailable)),
     dispatcher(D),
-    messageA(D, send_message(ambulance_status(unavailable), ambulance)).
-
-% Wakeup (30%): torno disponibile
-wakeupI :>
-    retractall(status(_)),
-    assert(status(available)),
-    dispatcher(D),
-    messageA(D, send_message(ambulance_status(available), ambulance)).
-
-%%%%%%%%%%%%%%%%%%%%
-% AZIONI (A)
-%%%%%%%%%%%%%%%%%%%%
-
-navigate_toA(_Loc) :-
-    true.
-
-rescue_peopleA :-
-    true.
-
-reportA(emergency_retired) :-
-    true.
+    messageA(D, send_message(ambulance_status(unavailable), ambulance)),
+    write('[I] notified dispatcher: ambulance_status(unavailable)'), nl.
