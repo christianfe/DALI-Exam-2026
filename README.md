@@ -18,8 +18,8 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | -------------- | -------------------------------------------- |
 | **Dispatcher** | Manage resorces, receive calls.              |
 | **Drone**      | Detects crashes or fires over the city.      |
-| **Ambulance**  | Rescue People, call Firerescue if necessary. |
-| **FireRescue** | Turn Off fire, call ambulance if necessary.  |
+| **Ambulance**  | Rescue People.                               |
+| **FireFighter** | Turn Off fire.                              |
 
 ---
 
@@ -35,9 +35,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
     - `Drone → Dispatcher`: inform about emergency type.
     - `Dispatcher → Drone`: report request about an emergency situation.
     - `Dispatcher → Ambulance`: dispatch to a location.
-    - `Dispatcher → FireRescue`: dispatch to a location.
-    - `Ambulance → Dispatcher`: request support
-    - `FireRescue → Dispatcher`: request support
+    - `Dispatcher → FireFighter`: dispatch to a location.
 
 ---
 
@@ -57,7 +55,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | `request_recognition(Loc)` | external | Dispatcher  |
 | `spot_fire(Loc)`           | external | environment |
 | `spot_accident(Loc)`       | external | environment |
-| `battery_check`              | Internal | drone       |
+| `battery_check`            | Internal | drone       |
 
 #### Ambulance
 
@@ -73,7 +71,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | `maybe_end_shift`            | internal | ambulance   |
 | `wakeup_check`               | internal | ambulance   |
 
-#### FireRescue
+#### FireFighter
 
 | Event                | Type     | Source      |
 | -------------------- | -------- | ----------- |
@@ -119,8 +117,8 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 - **Dispatcher**: reactive to emergencies; handles the operations.
 - **Drone**: reactive to incoming alarms.
-- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
-- **FireRescue**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
+- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation.
+- **FireFighter**: reactive to emergency situations; proactive in evaluating the situation.
 
 ---
 
@@ -131,6 +129,7 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
 
 
 
