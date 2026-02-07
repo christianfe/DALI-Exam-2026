@@ -1,1 +1,1 @@
-mainDispatcher
+mainDispatcherType

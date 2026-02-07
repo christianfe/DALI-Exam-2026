@@ -37,7 +37,7 @@ activateE :>
     retract(state(pause)), 
     assert(state(working)), 
     dispatcher(D),
-    messageA(D, send_message(im_active(drone1), drone1)),
+    messageA(D, send_message(im_active(Me), Me)),
     nl,
     write('sto facendo il tour!').
 
@@ -55,7 +55,7 @@ battery_check :- state(working), random(0, 1000, X), X > 998.
 battery_checkI :>
         nl,
         dispatcher(D),
-        messageA(D, send_message(im_recharging(drone1), drone1)),
+        messageA(D, send_message(im_recharging(Me), Me)),
         retract(state(working)),
         assert(state(pause)),
         gotoA(base),
@@ -69,14 +69,14 @@ spot_fireE :>
         dispatcher(D),
         nl,
         write('!!! incendio trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, fire), drone1)).
+        messageA(D, send_message(report_emergency(Loc, fire), Me)).
 
 spot_accidentE :>
         drone_position(Loc),
         dispatcher(D),
         nl,
         write('!!! ferito trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, ambulance), drone1)).
+        messageA(D, send_message(report_emergency(Loc, ambulance), Me)).
 
 request_recognitionE(Loc) :>
         random(0, 100, X),
@@ -92,7 +92,7 @@ ricognizioneA(Loc, X) :>
         X > 70,
         nl,
         write('!!! incendio trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, fire), drone1)).
+        messageA(D, send_message(report_emergency(Loc, fire), Me)).
 
 ricognizioneA(Loc, X) :>
         nl,
@@ -105,7 +105,7 @@ ricognizioneA(Loc, X) :>
         X < 30,
         nl,
         write('!!! incendio trovato !!!'),
-        messageA(D, send_message(report_emergency(Loc, ambulance), drone1)).
+        messageA(D, send_message(report_emergency(Loc, ambulance), Me)).
 
 gotoA(Loc) :> retractall(drone_position(L)), assert(drone_position(Loc)).
 

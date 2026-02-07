@@ -1,0 +1,107 @@
+:- write('im a fireFighter'), nl.
+
+:- dynamic dispatcher/1.
+:- dynamic state/1.
+:- dynamic unit_position/1.
+:- dynamic current_job/1.
+
+dispatcher(mainDispatcher).
+
+state(idle).
+unit_position(base).
+current_job(null).
+
+activateE :>
+    retract(state(pause)),
+    assert(state(idle)),
+    dispatcher(D),
+    messageA(D, send_message(fireFighter_status(available, Me), Me)),
+    write('fireFighter ready'), nl.
+
+dispatchE(Loc) :>
+    state(idle),
+    retract(state(idle)),
+    assert(state(en_route)),
+    retract(current_job(null)),
+    assert(current_job(Loc)),
+    dispatcher(D),
+    messageA(D, send_message(fireFighter_ack(dispatch,Loc), Me)),
+    write('[E] dispatch received to '), write(Loc), nl.
+
+dispatchE(Loc) :>
+    state(S),
+    S \= idle,
+    dispatcher(D),
+    messageA(D, send_message(dispatch_refused(Loc, S, Me), Me)),
+    write('[E] dispatch refused to '), write(Loc), write(' reason='), write(S), nl.
+
+move_to_job :- state(en_route).
+move_to_jobI :>
+    current_job(Loc),
+    random(5, 16, T),
+    write('[I] going to '), write(Loc), write(' ('), write(T), write('s)'), nl,
+    gotoA(Loc),
+    sleep(T),
+    retract(state(en_route)),
+    assert(state(operating)).
+
+doOperations :- state(operating).
+doOperationsI :>
+    current_job(Loc),
+    write('[I] operating at '), write(Loc), nl,
+    extinguish_fireA,
+    dispatcher(D),
+    messageA(D, send_message(report(emergency_retired,Loc, Me), Me)),
+    retract(state(operating)),
+    assert(state(returning)).
+
+return_base :- state(returning).
+return_baseI :>
+    write('[I] returning to base'), nl,
+    gotoA(base),
+    sleep(5),
+    retract(current_job(_)),
+    assert(current_job(null)),
+    retract(state(returning)),
+    assert(state(idle)),
+    dispatcher(D),
+    messageA(D, send_message(fireFighter_status(available, Me), Me)),
+    write('[I] back to base - idle'), nl,
+    maybe_end_shiftA.
+
+maybe_end_shiftA :>
+    random(0, 1000, X),
+    X > 899,
+    retract(state(idle)),
+    assert(state(pause)),
+    dispatcher(D),
+    messageA(D, send_message(fireFighter_status(unavailable, Me), Me)),
+    write('[A] end of shift -> UNAVAILABLE'), nl.
+
+maybe_end_shiftA :>
+    random(0, 1000, X),
+    X =< 899,
+    true.
+
+wakeup_check :- state(pause).
+wakeup_checkI :>
+    sleep(30),
+    random(0, 1000, X),
+    X > 699,
+    retract(state(pause)),
+    assert(state(idle)),
+    dispatcher(D),
+    messageA(D, send_message(fireFighter_status(available, Me), Me)),
+    write('[I] wakeup -> AVAILABLE'), nl.
+
+wakeup_checkI :>
+    sleep(30),
+    random(0, 1000, X),
+    X =< 699,
+    write('[I] still resting'), nl.
+
+gotoA(Loc) :> retractall(unit_position(_)), assert(unit_position(Loc)).
+
+extinguish_fireA :>
+    write('[A] Fire extinguish in progress'), nl,
+    sleep(5).

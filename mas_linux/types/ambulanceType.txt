@@ -1,22 +1,22 @@
-:- write('im a fireRescue'), nl.
+:- write('im an ambulance'), nl.
 
 :- dynamic dispatcher/1.
 :- dynamic state/1.
-:- dynamic unit_position/1.
+:- dynamic ambulance_position/1.
 :- dynamic current_job/1.
 
 dispatcher(mainDispatcher).
 
 state(idle).
-unit_position(base).
+ambulance_position(base).
 current_job(null).
 
 activateE :>
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireRescue_status(available, Me), Me)),
-    write('fireRescue ready'), nl.
+    messageA(D, send_message(ambulance_status(available, Me), Me)),
+    write('ambulance ready'), nl.
 
 dispatchE(Loc) :>
     state(idle),
@@ -25,7 +25,7 @@ dispatchE(Loc) :>
     retract(current_job(null)),
     assert(current_job(Loc)),
     dispatcher(D),
-    messageA(D, send_message(fireRescue_ack(dispatch,Loc), Me)),
+    messageA(D, accept(ambulance_ack(dispatch,Loc), Me)),
     write('[E] dispatch received to '), write(Loc), nl.
 
 dispatchE(Loc) :>
@@ -65,42 +65,45 @@ return_baseI :>
     retract(state(returning)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireRescue_status(available, Me), Me)),
+    messageA(D, inform(ambulance_status(available, Me), Me)),
     write('[I] back to base - idle'), nl,
     maybe_end_shiftA.
 
 maybe_end_shiftA :>
     random(0, 1000, X),
-    X > 899,
+    X > 800,
     retract(state(idle)),
     assert(state(pause)),
     dispatcher(D),
-    messageA(D, send_message(fireRescue_status(unavailable, Me), Me)),
+    messageA(D, send_message(ambulance_status(unavailable, Me), Me)),
     write('[A] end of shift -> UNAVAILABLE'), nl.
 
 maybe_end_shiftA :>
     random(0, 1000, X),
-    X =< 899,
+    X =< 800,
     true.
 
 wakeup_check :- state(pause).
+
 wakeup_checkI :>
-    sleep(30),
+    write('[I] sleeping...'), nl,
+    sleep(8),
     random(0, 1000, X),
     X > 699,
     retract(state(pause)),
     assert(state(idle)),
     dispatcher(D),
-    messageA(D, send_message(fireRescue_status(available, Me), Me)),
-    write('[I] wakeup -> AVAILABLE'), nl.
+    messageA(D, send_message(ambulance_status(available, Me), Me)),
+    write('[I] team ready -> AVAILABLE'), nl.
 
 wakeup_checkI :>
-    sleep(30),
+    write('[I] check if team is ready...'), nl,
+    sleep(5),
     random(0, 1000, X),
     X =< 699,
     write('[I] still resting'), nl.
 
-gotoA(Loc) :> retractall(unit_position(_)), assert(unit_position(Loc)).
+gotoA(Loc) :> retractall(ambulance_position(_)), assert(ambulance_position(Loc)).
 
 rescue_peopleA :>
     write('[A] rescue in progress'), nl,

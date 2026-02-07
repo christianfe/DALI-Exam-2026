@@ -27,11 +27,10 @@ fi
 
 # Define paths and variables
 #SICSTUS_HOME=/usr/local/sicstus4.6.0
-MAIN_HOME=../..
 DALI_HOME=src
 CONF_DIR=conf
 PROLOG="sicstus"
-WAIT="sleep 1.5"
+WAIT="sleep 4"
 INSTANCES_HOME=mas_linux/instances
 TYPES_HOME=mas_linux/types
 BUILD_HOME=build
@@ -47,8 +46,10 @@ fi
 # Clean directories
 rm -rf tmp/*
 rm -rf build/*
-rm -f work/*  # Remove agent history
+rm -f work/*
 rm -rf conf/mas/*
+
+# echo "'"$(hostname)"':3010." > server.txt
 
 # Build agents based on instances
 for instance_filename in $INSTANCES_HOME/*.txt; do
@@ -161,3 +162,8 @@ read
 
 # Clean up processes
 killall sicstus
+
+rm -rf tmp/*
+rm -rf build/*
+rm -f work/*
+rm -rf conf/mas/*
