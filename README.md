@@ -23,7 +23,16 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ---
 
-### 1.2 Virtual Organization
+### 1.2 Agent Behaviors
+
+- **Dispatcher**: reactive to emergencies; handles the operations.
+- **Drone**: reactive to incoming alarms.
+- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation.
+- **FireFighter**: reactive to emergency situations; proactive in evaluating the situation.
+
+---
+
+### 1.3 Virtual Organization
 
 - **Name**: `CityEmergencyManagementSystem`
 - **Goals**:
@@ -39,7 +48,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ---
 
-### 1.3 Event Table
+### 1.4 Event Table
 
 #### Dispatcher (mainDispatcher)
 
@@ -91,7 +100,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 --
 
-### 1.4 Action Table
+### 1.5 Action Table
 
 #### Ambulance
 
@@ -116,25 +125,49 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | `goto(Loc)`| move to the desired location |
 | `recharge` | charge its battery          |
 
+---
+
+### 1.6 Manual Test Messages (User -> Agents)
+
+You can use the MAS “New message” prompt to manually inject events/messages and test interactions.
+
+#### Trigger an external emergency (directly to dispatcher)
+- To: `mainDispatcher.`  
+  From: `user.`  
+  Message: `send_message(call_emergency(via_roma, ambulance), user).`
+
+- To: `mainDispatcher.`  
+  From: `user.`
+  Message: `send_message(call_emergency(via_nazionale, fire), user).`
+
+- To: `mainDispatcher.`  
+  From: `user.`
+  Message: `send_message(call_emergency(via_garibaldi, null), user).`
+
+#### Force a drone recognition request
+- To: `drone1`  
+  From: `user`  
+  Message: `send_message(request_recognition(via_cavour), user).`
+
+#### Simulate drone spotting events
+- To: `drone1.`
+  From: `environment.`  
+  Message: `send_message(spot_fire, environment).`
+
+- To: `drone1.`
+  From: `environment.`  
+  Message: `send_message(spot_accident, environment).`
 
 ---
 
-### 1.5 Agent Behaviors
-
-- **Dispatcher**: reactive to emergencies; handles the operations.
-- **Drone**: reactive to incoming alarms.
-- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation.
-- **FireFighter**: reactive to emergency situations; proactive in evaluating the situation.
-
----
-
-### 1.6 Sequence Diagram
+### 1.7 Sequence Diagram
 
 Here's a sequence diagram exploiting the agent interaction framework on emergency scenarios.
 
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
 
 
 
