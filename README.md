@@ -41,75 +41,81 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 ### 1.3 Event Table
 
-#### Dispatcher
+#### Dispatcher (mainDispatcher)
 
-| Event                         | Type     | Source      |
-| ----------------------------- | -------- | ----------- |
-| `call_emergency(Loc, Type)`   | external | environment |
-| `report_emergency(Loc, Type)` | external | Drone       |
+| Event                                   | Type     | Source      |
+| --------------------------------------- | -------- | ----------- |
+| `call_emergency(Loc, Type)`             | external | environment |
+| `report_emergency(Loc, Type)`           | external | Drone       |
+| `im_active(Drone)`                      | external | Drone       |
+| `im_recharging(Drone)`                  | external | Drone       |
+| `ambulance_ack(dispatch, Loc)`          | external | Ambulance   |
+| `fireFighter_ack(dispatch, Loc)`        | external | FireFighter |
+| `dispatch_refused(Loc, Reason, Agent)`  | external | Ambulance / FireFighter |
+| `ambulance_status(Status, Agent)`       | external | Ambulance   |
+| `fireFighter_status(Status, Agent)`     | external | FireFighter |
+| `report(emergency_retired, Loc, Agent)` | external | Ambulance / FireFighter |
 
 #### Drone
 
 | Event                      | Type     | Source      |
 | -------------------------- | -------- | ----------- |
+| `activate`                 | external | Dispatcher  |
 | `request_recognition(Loc)` | external | Dispatcher  |
-| `spot_fire(Loc)`           | external | environment |
-| `spot_accident(Loc)`       | external | environment |
-| `battery_check`            | Internal | drone       |
+| `spot_fire`                | external | environment |
+| `spot_accident`            | external | environment |
+| `move_next`                | internal | drone       |
+| `battery_check`            | internal | drone       |
 
 #### Ambulance
 
-| Event                  | Type     | Source      |
-| ---------------------- | -------- | ----------- |
-| `dispatch(Loc)`        | external | Dispatcher  |
-| `activate`                | external | Dispatcher   |
-| `accept_dispatch(Loc)` | internal | ambulance   |
-| `refuse_dispatch(Loc)` | internal | ambulance   |
-| `move_to_job`       | internal | ambulance   |
-| `do_rescue`       | internal | ambulance   |
-| `return_base`       | internal | ambulance   |
-| `maybe_end_shift`            | internal | ambulance   |
-| `wakeup_check`               | internal | ambulance   |
+| Event            | Type     | Source      |
+| ---------------- | -------- | ----------- |
+| `activate`       | external | Dispatcher  |
+| `dispatch(Loc)`  | external | Dispatcher  |
+| `move_to_job`    | internal | ambulance   |
+| `do_rescue`      | internal | ambulance   |
+| `return_base`    | internal | ambulance   |
+| `wakeup_check`   | internal | ambulance   |
 
 #### FireFighter
 
-| Event                | Type     | Source      |
-| -------------------- | -------- | ----------- |
-| `dispatch(Loc)`        | external | Dispatcher  |
-| `activate`                | external | Dispatcher   |
-| `accept_dispatch(Loc)` | internal | fireunit   |
-| `refuse_dispatch(Loc)` | internal | fireunit   |
-| `move_to_job`       | internal | fireunit   |
-| `do_rescue`       | internal | fireunit   |
-| `return_base`       | internal | fireunit   |
-| `maybe_end_shift`            | internal | fireunit   |
-| `wakeup_check`               | internal | fireunit   |
+| Event            | Type     | Source      |
+| ---------------- | -------- | ----------- |
+| `activate`       | external | Dispatcher  |
+| `dispatch(Loc)`  | external | Dispatcher  |
+| `move_to_job`    | internal | fireunit    |
+| `doOperations`   | internal | fireunit    |
+| `return_base`    | internal | fireunit    |
+| `wakeup_check`   | internal | fireunit    |
 
-
----
+--
 
 ### 1.4 Action Table
 
 #### Ambulance
 
-| Action                      | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| `goto`             | move to the desired location                                   |
-| `rescue_people` | rescue peoples and turn off fire |
+| Action             | Description                                |
+| ------------------ | ------------------------------------------ |
+| `goto(Loc)`        | move to the desired location               |
+| `rescue_people`    | rescue people                              |
+| `maybe_end_shift`  | probabilistically end shift (go unavailable) |
 
-### Fireescue
+#### FireFighter (FireRescue)
 
-| Action                      | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| `goto`             | move to the desired location                                   |
-| `rescue_people` | rescue peoples and turn off fire |
+| Action              | Description                                |
+| ------------------- | ------------------------------------------ |
+| `goto(Loc)`         | move to the desired location               |
+| `extinguish_fire`   | extinguish fire                            |
+| `maybe_end_shift`   | probabilistically end shift (go unavailable) |
 
-### Drone
+#### Drone
 
-| Action     | Description        |
-| ---------- | ------------------ |
-| `goto(Loc)` | move to the desired location |
-| `recharge` | charge its battery |
+| Action     | Description                 |
+| ---------- | --------------------------- |
+| `goto(Loc)`| move to the desired location |
+| `recharge` | charge its battery          |
+
 
 ---
 
@@ -129,6 +135,7 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
 
 
 
