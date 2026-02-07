@@ -18,12 +18,21 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | -------------- | -------------------------------------------- |
 | **Dispatcher** | Manage resorces, receive calls.              |
 | **Drone**      | Detects crashes or fires over the city.      |
-| **Ambulance**  | Rescue People, call Firerescue if necessary. |
-| **FireRescue** | Turn Off fire, call ambulance if necessary.  |
+| **Ambulance**  | Rescue People.                               |
+| **FireFighter** | Turn Off fire.                              |
 
 ---
 
-### 1.2 Virtual Organization
+### 1.2 Agent Behaviors
+
+- **Dispatcher**: reactive to emergencies; handles the operations.
+- **Drone**: reactive to incoming alarms.
+- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation.
+- **FireFighter**: reactive to emergency situations; proactive in evaluating the situation.
+
+---
+
+### 1.3 Virtual Organization
 
 - **Name**: `CityEmergencyManagementSystem`
 - **Goals**:
@@ -35,102 +44,199 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
     - `Drone → Dispatcher`: inform about emergency type.
     - `Dispatcher → Drone`: report request about an emergency situation.
     - `Dispatcher → Ambulance`: dispatch to a location.
-    - `Dispatcher → FireRescue`: dispatch to a location.
-    - `Ambulance → Dispatcher`: request support
-    - `FireRescue → Dispatcher`: request support
+    - `Dispatcher → FireFighter`: dispatch to a location.
 
 ---
 
-### 1.3 Event Table
+### 1.4 Event Table
 
-#### Dispatcher
+#### Dispatcher (mainDispatcher)
 
-| Event                         | Type     | Source      |
-| ----------------------------- | -------- | ----------- |
-| `call_emergency(Loc, Type)`   | external | environment |
-| `report_emergency(Loc, Type)` | external | Drone       |
+| Event                                   | Type     | Source      |
+| --------------------------------------- | -------- | ----------- |
+| `call_emergency(Loc, Type)`             | external | environment |
+| `report_emergency(Loc, Type)`           | external | Drone       |
+| `im_active(Drone)`                      | external | Drone       |
+| `im_recharging(Drone)`                  | external | Drone       |
+| `ambulance_ack(dispatch, Loc)`          | external | Ambulance   |
+| `fireFighter_ack(dispatch, Loc)`        | external | FireFighter |
+| `dispatch_refused(Loc, Reason, Agent)`  | external | Ambulance / FireFighter |
+| `ambulance_status(Status, Agent)`       | external | Ambulance   |
+| `fireFighter_status(Status, Agent)`     | external | FireFighter |
+| `report(emergency_retired, Loc, Agent)` | external | Ambulance / FireFighter |
 
 #### Drone
 
 | Event                      | Type     | Source      |
 | -------------------------- | -------- | ----------- |
+| `activate`                 | external | Dispatcher  |
 | `request_recognition(Loc)` | external | Dispatcher  |
-| `spot_fire(Loc)`           | external | environment |
-| `spot_accident(Loc)`       | external | environment |
-| `battery_check`              | Internal | drone       |
+| `spot_fire`                | external | environment |
+| `spot_accident`            | external | environment |
+| `move_next`                | internal | drone       |
+| `battery_check`            | internal | drone       |
 
 #### Ambulance
 
-| Event                  | Type     | Source      |
-| ---------------------- | -------- | ----------- |
-| `dispatch(Loc)`        | external | Dispatcher  |
-| `activate`                | external | Dispatcher   |
-| `accept_dispatch(Loc)` | internal | ambulance   |
-| `refuse_dispatch(Loc)` | internal | ambulance   |
-| `move_to_job`       | internal | ambulance   |
-| `do_rescue`       | internal | ambulance   |
-| `return_base`       | internal | ambulance   |
-| `maybe_end_shift`            | internal | ambulance   |
-| `wakeup_check`               | internal | ambulance   |
+| Event            | Type     | Source      |
+| ---------------- | -------- | ----------- |
+| `activate`       | external | Dispatcher  |
+| `dispatch(Loc)`  | external | Dispatcher  |
+| `move_to_job`    | internal | ambulance   |
+| `do_rescue`      | internal | ambulance   |
+| `return_base`    | internal | ambulance   |
+| `wakeup_check`   | internal | ambulance   |
 
-#### FireRescue
+#### FireFighter
 
-| Event                | Type     | Source      |
-| -------------------- | -------- | ----------- |
-| `dispatch(Loc)`        | external | Dispatcher  |
-| `activate`                | external | Dispatcher   |
-| `accept_dispatch(Loc)` | internal | fireunit   |
-| `refuse_dispatch(Loc)` | internal | fireunit   |
-| `move_to_job`       | internal | fireunit   |
-| `do_rescue`       | internal | fireunit   |
-| `return_base`       | internal | fireunit   |
-| `maybe_end_shift`            | internal | fireunit   |
-| `wakeup_check`               | internal | fireunit   |
+| Event            | Type     | Source      |
+| ---------------- | -------- | ----------- |
+| `activate`       | external | Dispatcher  |
+| `dispatch(Loc)`  | external | Dispatcher  |
+| `move_to_job`    | internal | FireFighter |
+| `doOperations`   | internal | FireFighter |
+| `return_base`    | internal | FireFighter |
+| `wakeup_check`   | internal | FireFighter |
 
+--
 
----
-
-### 1.4 Action Table
+### 1.5 Action Table
 
 #### Ambulance
 
-| Action                      | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| `goto`             | move to the desired location                                   |
-| `rescue_people` | rescue peoples and turn off fire |
+| Action             | Description                                |
+| ------------------ | ------------------------------------------ |
+| `goto(Loc)`        | move to the desired location               |
+| `rescue_people`    | rescue people                              |
+| `maybe_end_shift`  | probabilistically end shift (go unavailable) |
 
-### Fireescue
+#### FireFighter (FireRescue)
 
-| Action                      | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| `goto`             | move to the desired location                                   |
-| `rescue_people` | rescue peoples and turn off fire |
+| Action              | Description                                |
+| ------------------- | ------------------------------------------ |
+| `goto(Loc)`         | move to the desired location               |
+| `extinguish_fire`   | extinguish fire                            |
+| `maybe_end_shift`   | probabilistically end shift (go unavailable) |
 
-### Drone
+#### Drone
 
-| Action     | Description        |
-| ---------- | ------------------ |
-| `goto(Loc)` | move to the desired location |
-| `recharge` | charge its battery |
-
----
-
-### 1.5 Agent Behaviors
-
-- **Dispatcher**: reactive to emergencies; handles the operations.
-- **Drone**: reactive to incoming alarms.
-- **Ambulance**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
-- **FireRescue**: reactive to emergency situations; proactive in evaluating the situation and ask for FireRescue support.
+| Action     | Description                 |
+| ---------- | --------------------------- |
+| `goto(Loc)`| move to the desired location |
+| `recharge` | charge its battery          |
 
 ---
 
-### 1.6 Sequence Diagram
+### 1.6 Manual Test Messages (User -> Agents)
+
+You can use the MAS “New message” prompt to manually inject events/messages and test interactions.
+
+#### Trigger an external emergency
+- To: `mainDispatcher.`  
+  From: `user.`  
+  Message: `send_message(call_emergency(via_roma, ambulance), user).`
+
+- To: `mainDispatcher.`  
+  From: `user.`
+  Message: `send_message(call_emergency(via_nazionale, fire), user).`
+
+- To: `mainDispatcher.`  
+  From: `user.`
+  Message: `send_message(call_emergency(via_garibaldi, null), user).`
+
+#### Simulate drone spotting events
+- To: `drone1.`
+  From: `environment.`  
+  Message: `send_message(spot_fire, environment).`
+
+- To: `drone1.`
+  From: `environment.`  
+  Message: `send_message(spot_accident, environment).`
+
+---
+
+### 1.7 Sequence Diagram
 
 Here's a sequence diagram exploiting the agent interaction framework on emergency scenarios.
 
 <br>
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
+
+---
+
+
+### Installation (Windows / Linux)
+
+#### Requirements
+
+- **SICStus Prolog 4.x** (evaluation license is sufficient)
+- **DALI MAS project** files
+- **tmux** (Linux only, required by the provided scripts)
+
+
+#### Linux
+
+1. **Install SICStus Prolog**
+   - Download SICStus from the official SICStus website.
+   - Request and activate an **evaluation license** from the same site (follow SICStus instructions).
+
+2. **Install tmux**
+   ```bash
+   sudo apt update
+   sudo apt install -y tmux
+   ```
+   (on Fedora/RHEL: `sudo dnf install -y tmux`)
+
+3. **Find the SICStus installation path**
+   Verify if `sicstus` is already in PATH:
+   ```bash
+   which sicstus
+   ```
+   If it is not in PATH yet, search it:
+   ```bash
+   sudo find /usr/local -maxdepth 4 -type f -name sicstus 2>/dev/null
+   sudo find /opt -maxdepth 5 -type f -name sicstus 2>/dev/null
+   ```
+
+4. **Add SICStus to PATH (bashrc)**
+   Add the following lines to `~/.bashrc` (example):
+   ```bash
+   echo 'export VISUAL=vim' >> ~/.bashrc
+   echo 'export EDITOR=vim' >> ~/.bashrc
+   echo 'export PATH="$PATH:/usr/local/sicstus4.10.1/bin"' >> ~/.bashrc
+   ```
+   Then reload:
+   ```bash
+   source ~/.bashrc
+   ```
+
+5. **Verify**
+   ```bash
+   tmux -V
+   sicstus --version
+   ```
+
+#### Windows
+
+1. **Install SICStus Prolog**
+   - Download and install SICStus from the official SICStus website.
+   - Request and activate an **evaluation license** from the same site.
+
+2. **Update `startmas.bat` to point to SICStus**
+   Edit `startmas.bat` and set the correct SICStus `bin` folder. Example:
+   ```bat
+   set sicstus_home=C:\Program Files\SICStus Prolog VC16 4.10.1\bin
+   ```
+   Make sure the directory exists and contains `sicstus.exe`.
+
+3. **Run**
+   Double-click `startmas.bat` (or run it from `cmd.exe`) to start the MAS.
+
+
+
+
+
 
 
 
