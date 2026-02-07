@@ -48,7 +48,7 @@ move_nextI :>
     nl,
     write('tour: '), write(L), write(' -> '), write(L2),
     gotoA(L2),
-    sleep(2).
+    sleep(4).
 
 
 battery_check :- state(working), random(0, 1000, X), X > 998.
