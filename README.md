@@ -168,6 +168,130 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 
 <img src="Sequence%20Diagram/DALI_sequence_sm.png" alt="Sequence diagram">
 
+---
+
+### 1.5 Manual Test Messages (User -> Agents)
+
+You can use the MAS “New message” prompt to manually inject events/messages and test interactions.
+
+#### Start drone patrol (activate one drone)
+
+- **To:** `drone1`  
+  **From:** `user`  
+  **Message:** `send_message(activate, mainDispatcher).`
+
+#### Trigger an external emergency (directly to dispatcher)
+
+- **To:** `mainDispatcher`  
+  **From:** `user`  
+  **Message:** `send_message(call_emergency(via_roma, ambulance), user).`
+
+- **To:** `mainDispatcher`  
+  **From:** `user`  
+  **Message:** `send_message(call_emergency(via_nazionale, fire), user).`
+
+- **To:** `mainDispatcher`  
+  **From:** `user`  
+  **Message:** `send_message(call_emergency(via_garibaldi, null), user).`
+
+#### Force a drone recognition request (manual reconnaissance)
+
+- **To:** `drone1`  
+  **From:** `user`  
+  **Message:** `send_message(request_recognition(via_cavour), mainDispatcher).`
+
+#### Simulate drone spotting events (environment -> drone)
+
+- **To:** `drone1`  
+  **From:** `environment`  
+  **Message:** `send_message(spot_fire, environment).`
+
+- **To:** `drone1`  
+  **From:** `environment`  
+  **Message:** `send_message(spot_accident, environment).`
+
+#### Directly dispatch units (bypass dispatcher logic)
+
+- **To:** `ambulance1`  
+  **From:** `mainDispatcher`  
+  **Message:** `send_message(dispatch(via_marconi), mainDispatcher).`
+
+- **To:** `fireRescue1`  
+  **From:** `mainDispatcher`  
+  **Message:** `send_message(dispatch(via_mazzini), mainDispatcher).`
+
+---
+
+### Installation (Windows / Linux)
+
+#### Requirements
+
+- **SICStus Prolog 4.x** (evaluation license is sufficient)
+- **DALI MAS project** files
+- **tmux** (Linux only, required by the provided scripts)
+
+
+#### Linux
+
+1. **Install SICStus Prolog**
+   - Download SICStus from the official SICStus website.
+   - Request and activate an **evaluation license** from the same site (follow SICStus instructions).
+
+2. **Install tmux**
+   ```bash
+   sudo apt update
+   sudo apt install -y tmux
+   ```
+   (on Fedora/RHEL: `sudo dnf install -y tmux`)
+
+3. **Find the SICStus installation path**
+   Verify if `sicstus` is already in PATH:
+   ```bash
+   which sicstus
+   ```
+   If it is not in PATH yet, search it:
+   ```bash
+   sudo find /usr/local -maxdepth 4 -type f -name sicstus 2>/dev/null
+   sudo find /opt -maxdepth 5 -type f -name sicstus 2>/dev/null
+   ```
+
+4. **Add SICStus to PATH (bashrc)**
+   Add the following lines to `~/.bashrc` (example):
+   ```bash
+   echo 'export VISUAL=vim' >> ~/.bashrc
+   echo 'export EDITOR=vim' >> ~/.bashrc
+   echo 'export PATH="$PATH:/usr/local/sicstus4.10.1/bin"' >> ~/.bashrc
+   ```
+   Then reload:
+   ```bash
+   source ~/.bashrc
+   ```
+
+5. **Verify**
+   ```bash
+   tmux -V
+   sicstus --version
+   ```
+
+#### Windows
+
+1. **Install SICStus Prolog**
+   - Download and install SICStus from the official SICStus website.
+   - Request and activate an **evaluation license** from the same site.
+
+2. **Update `startmas.bat` to point to SICStus**
+   Edit `startmas.bat` and set the correct SICStus `bin` folder. Example:
+   ```bat
+   title "MAS"
+   set sicstus_home=C:\Program Files\SICStus Prolog VC16 4.10.1\bin
+   ::set main_home=%~dp0\..
+   ```
+   Make sure the directory exists and contains `sicstus.exe`.
+
+3. **Run**
+   Double-click `startmas.bat` (or run it from `cmd.exe`) to start the MAS.
+
+
 
 
 
