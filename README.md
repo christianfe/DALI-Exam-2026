@@ -216,6 +216,10 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
    tmux -V
    sicstus --version
    ```
+6. **Start the Agents**
+   ```bash
+   ./startmas.sh
+   ```
 
 #### Windows
 
@@ -232,6 +236,7 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 
 3. **Run**
    Double-click `startmas.bat` (or run it from `cmd.exe`) to start the MAS.
+
 
 
 
