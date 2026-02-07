@@ -93,10 +93,10 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 | ---------------- | -------- | ----------- |
 | `activate`       | external | Dispatcher  |
 | `dispatch(Loc)`  | external | Dispatcher  |
-| `move_to_job`    | internal | fireunit    |
-| `doOperations`   | internal | fireunit    |
-| `return_base`    | internal | fireunit    |
-| `wakeup_check`   | internal | fireunit    |
+| `move_to_job`    | internal | FireFighter |
+| `doOperations`   | internal | FireFighter |
+| `return_base`    | internal | FireFighter |
+| `wakeup_check`   | internal | FireFighter |
 
 --
 
@@ -131,7 +131,7 @@ Design and implement a multi-agent system in the [DALI](https://github.com/AAAI-
 
 You can use the MAS “New message” prompt to manually inject events/messages and test interactions.
 
-#### Trigger an external emergency (directly to dispatcher)
+#### Trigger an external emergency
 - To: `mainDispatcher.`  
   From: `user.`  
   Message: `send_message(call_emergency(via_roma, ambulance), user).`
@@ -143,11 +143,6 @@ You can use the MAS “New message” prompt to manually inject events/messages 
 - To: `mainDispatcher.`  
   From: `user.`
   Message: `send_message(call_emergency(via_garibaldi, null), user).`
-
-#### Force a drone recognition request
-- To: `drone1`  
-  From: `user`  
-  Message: `send_message(request_recognition(via_cavour), user).`
 
 #### Simulate drone spotting events
 - To: `drone1.`
@@ -170,57 +165,6 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
 
 ---
 
-### 1.5 Manual Test Messages (User -> Agents)
-
-You can use the MAS “New message” prompt to manually inject events/messages and test interactions.
-
-#### Start drone patrol (activate one drone)
-
-- **To:** `drone1`  
-  **From:** `user`  
-  **Message:** `send_message(activate, mainDispatcher).`
-
-#### Trigger an external emergency (directly to dispatcher)
-
-- **To:** `mainDispatcher`  
-  **From:** `user`  
-  **Message:** `send_message(call_emergency(via_roma, ambulance), user).`
-
-- **To:** `mainDispatcher`  
-  **From:** `user`  
-  **Message:** `send_message(call_emergency(via_nazionale, fire), user).`
-
-- **To:** `mainDispatcher`  
-  **From:** `user`  
-  **Message:** `send_message(call_emergency(via_garibaldi, null), user).`
-
-#### Force a drone recognition request (manual reconnaissance)
-
-- **To:** `drone1`  
-  **From:** `user`  
-  **Message:** `send_message(request_recognition(via_cavour), mainDispatcher).`
-
-#### Simulate drone spotting events (environment -> drone)
-
-- **To:** `drone1`  
-  **From:** `environment`  
-  **Message:** `send_message(spot_fire, environment).`
-
-- **To:** `drone1`  
-  **From:** `environment`  
-  **Message:** `send_message(spot_accident, environment).`
-
-#### Directly dispatch units (bypass dispatcher logic)
-
-- **To:** `ambulance1`  
-  **From:** `mainDispatcher`  
-  **Message:** `send_message(dispatch(via_marconi), mainDispatcher).`
-
-- **To:** `fireRescue1`  
-  **From:** `mainDispatcher`  
-  **Message:** `send_message(dispatch(via_mazzini), mainDispatcher).`
-
----
 
 ### Installation (Windows / Linux)
 
@@ -282,14 +226,13 @@ You can use the MAS “New message” prompt to manually inject events/messages 
 2. **Update `startmas.bat` to point to SICStus**
    Edit `startmas.bat` and set the correct SICStus `bin` folder. Example:
    ```bat
-   title "MAS"
    set sicstus_home=C:\Program Files\SICStus Prolog VC16 4.10.1\bin
-   ::set main_home=%~dp0\..
    ```
    Make sure the directory exists and contains `sicstus.exe`.
 
 3. **Run**
    Double-click `startmas.bat` (or run it from `cmd.exe`) to start the MAS.
+
 
 
 
