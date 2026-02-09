@@ -181,15 +181,32 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
    - Download SICStus from the official SICStus website.
    - Request and activate an **evaluation license** from the same site (follow SICStus instructions).
 
-2. **Install tmux**
+2. **Install tmux (required)**
    ```bash
    sudo apt update
    sudo apt install -y tmux
    ```
-   (on Fedora/RHEL: `sudo dnf install -y tmux`)
+   (Fedora/RHEL)
+   ```bash
+   sudo dnf install -y tmux
+   ```
 
-3. **Find the SICStus installation path**
-   Verify if `sicstus` is already in PATH:
+3. **Get / update both repositories**
+
+   **Clone the Repo:**
+   ```bash
+   git clone https://github.com/AAAI-DISIM-UnivAQ/DALI.git
+   git clone https://github.com/christianfe/DALI-Exam-2026.git
+   ```
+
+4. **Copy the DALI `src/` folder into the exam project**
+   From the parent folder containing both repos:
+   ```bash
+   cp -r DALI/src DALI-Exam-2026/src
+   ```
+
+5. **Find the SICStus installation path**
+   If `sicstus` is already in PATH:
    ```bash
    which sicstus
    ```
@@ -199,27 +216,26 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
    sudo find /opt -maxdepth 5 -type f -name sicstus 2>/dev/null
    ```
 
-4. **Add SICStus to PATH (bashrc)**
-   Add the following lines to `~/.bashrc` (example):
+6. **Add SICStus to PATH (bashrc)**
    ```bash
-   echo 'export VISUAL=vim' >> ~/.bashrc
-   echo 'export EDITOR=vim' >> ~/.bashrc
    echo 'export PATH="$PATH:/usr/local/sicstus4.10.1/bin"' >> ~/.bashrc
-   ```
-   Then reload:
-   ```bash
    source ~/.bashrc
    ```
 
-5. **Verify**
+7. **Verify**
    ```bash
    tmux -V
    sicstus --version
    ```
-6. **Start the Agents**
+
+8. **Start the Agents**
    ```bash
+   cd ~/DALI-Exam-2026
+   chmod +x startmas.sh
    ./startmas.sh
    ```
+
+---
 
 #### Windows
 
@@ -227,21 +243,26 @@ Here's a sequence diagram exploiting the agent interaction framework on emergenc
    - Download and install SICStus from the official SICStus website.
    - Request and activate an **evaluation license** from the same site.
 
-2. **Update `startmas.bat` to point to SICStus**
-   Edit `startmas.bat` and set the correct SICStus `bin` folder. Example:
+2. **Get / update both repositories**
+   Open **Command Prompt** (or PowerShell) and choose a folder (example: `C:\projects`).
+
+   **First time (clone):**
+   ```bat
+   git clone https://github.com/AAAI-DISIM-UnivAQ/DALI.git
+   git clone https://github.com/christianfe/DALI-Exam-2026.git
+   ```
+
+3. **Copy the DALI `src\` folder into the exam project**
+   ```bat
+   rmdir /S /Q DALI-Exam-2026\src
+   xcopy /E /I DALI\src DALI-Exam-2026\src
+   ```
+
+4. **Update `startmas.bat` to point to SICStus**
+   Edit `startmas.bat` inside `DALI-Exam-2026` and set the correct SICStus `bin` folder. Example:
    ```bat
    set sicstus_home=C:\Program Files\SICStus Prolog VC16 4.10.1\bin
    ```
-   Make sure the directory exists and contains `sicstus.exe`.
 
-3. **Run**
+5. **Run**
    Double-click `startmas.bat` (or run it from `cmd.exe`) to start the MAS.
-
-
-
-
-
-
-
-
-
