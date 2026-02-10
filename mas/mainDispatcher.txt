@@ -147,3 +147,21 @@ call_emergencyE(Loc, null) :>
     active_drone(Drone),
     messageA(Drone, send_message(request_recognition(Loc), Me)),
     write(Drone).
+
+call_emergencyE(Loc, fire) :>
+    nl,
+    dispatched_fireFighter(F),
+    next_fireFighter(F, F2),
+    retract(dispatched_fireFighter(F)),
+    assert(dispatched_fireFighter(F2)),
+    write('[E] !!! incendio segnalato a '), write(Loc),write('!!! Provo a mandare '), write(F2),
+    messageA(F2, send_message(dispatch(Loc), Me)).
+
+call_emergencyE(Loc, ambulance) :>
+    nl,
+    dispatched_ambulance(A),
+    next_ambulance(A, A2),
+    retract(dispatched_ambulance(A)),
+    assert(dispatched_ambulance(A2)),
+    write('[E] !!! incidente segnalato a '), write(Loc),write('!!! Provo a mandare '), write(A2),
+    messageA(A2, send_message(dispatch(Loc), Me)).
